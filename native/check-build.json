@@ -1,0 +1,11 @@
+{
+  "target": "arm-linux-musleabihf",
+  "cpu": "cortex_a8",
+  "arm_sha256": "82e583d0ffe32eee25e3551b3dae8d711bc802939734b10499b3b343088ccd17",
+  "zig": "0.13.0",
+  "static": true,
+  "source_sha256": "166d6c480b2fdd2e3b5d14ae16c53c78672f515d84509dfd10ff271c69217fb0",
+  "sqlite_sha256": "cee203f4dba53aaf721092f26d3492cc78e6dddaad9f8981deaa19bae9f517b3",
+  "host_sha256": "2fe640314fafc41ede73735b992c75c466a8ae03f254922fce1a019cf3bceb87",
+  "sqlite": "3.26.0"
+}

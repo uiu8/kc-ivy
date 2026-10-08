@@ -1,0 +1,16 @@
+/dist/
+/screenshots/
+/.config*/
+/.calibre*/
+/.exec-*/
+/.volumes-*/
+/.scale-*/
+/.meta-scale-*/
+/.zig-cache*/
+/tmp*/
+__pycache__/
+*.pyc
+*.log
+*.sqlite
+*-results.json
+/native/kc-backup-check-test.exe

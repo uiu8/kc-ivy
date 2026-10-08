@@ -1,0 +1,645 @@
+{
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "kc-edit-plan/v1"
+    },
+    "plan_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+    },
+    "device": {
+      "type": "object",
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+        },
+        "storage_uuid": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "serial_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "instance_id",
+        "storage_uuid",
+        "serial_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "library_uuid": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+    },
+    "snapshot_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "inputs_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "policy_version": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "capabilities_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+      },
+      "maxItems": 200000,
+      "uniqueItems": true
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "op_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "kind": {
+                "const": "create_collection"
+              },
+              "collection_uuid": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "before": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "after": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "args": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "pattern": "^[^\\x00-\\x1f]+$"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              "depends_on": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+                },
+                "maxItems": 200000,
+                "uniqueItems": true
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 8192
+              }
+            },
+            "required": [
+              "op_id",
+              "kind",
+              "collection_uuid",
+              "before",
+              "after",
+              "args",
+              "depends_on",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "kind": {
+                "const": "add_members"
+              },
+              "collection_uuid": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "before": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "after": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "args": {
+                "type": "object",
+                "properties": {
+                  "members": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+                    },
+                    "maxItems": 200000,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "members"
+                ],
+                "additionalProperties": false
+              },
+              "depends_on": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+                },
+                "maxItems": 200000,
+                "uniqueItems": true
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 8192
+              }
+            },
+            "required": [
+              "op_id",
+              "kind",
+              "collection_uuid",
+              "before",
+              "after",
+              "args",
+              "depends_on",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "kind": {
+                "const": "remove_members"
+              },
+              "collection_uuid": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "before": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "after": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "args": {
+                "type": "object",
+                "properties": {
+                  "members": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+                    },
+                    "maxItems": 200000,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "members"
+                ],
+                "additionalProperties": false
+              },
+              "depends_on": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+                },
+                "maxItems": 200000,
+                "uniqueItems": true
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 8192
+              }
+            },
+            "required": [
+              "op_id",
+              "kind",
+              "collection_uuid",
+              "before",
+              "after",
+              "args",
+              "depends_on",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "kind": {
+                "const": "rename_collection"
+              },
+              "collection_uuid": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "before": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "after": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "args": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "pattern": "^[^\\x00-\\x1f]+$"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              "depends_on": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+                },
+                "maxItems": 200000,
+                "uniqueItems": true
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 8192
+              }
+            },
+            "required": [
+              "op_id",
+              "kind",
+              "collection_uuid",
+              "before",
+              "after",
+              "args",
+              "depends_on",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "kind": {
+                "const": "delete_collection"
+              },
+              "collection_uuid": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "before": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "after": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "args": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              },
+              "depends_on": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+                },
+                "maxItems": 200000,
+                "uniqueItems": true
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 8192
+              }
+            },
+            "required": [
+              "op_id",
+              "kind",
+              "collection_uuid",
+              "before",
+              "after",
+              "args",
+              "depends_on",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "kind": {
+                "const": "verify_state"
+              },
+              "collection_uuid": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+              },
+              "before": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "after": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "args": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              },
+              "depends_on": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+                },
+                "maxItems": 200000,
+                "uniqueItems": true
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 8192
+              }
+            },
+            "required": [
+              "op_id",
+              "kind",
+              "collection_uuid",
+              "before",
+              "after",
+              "args",
+              "depends_on",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "maxItems": 20000,
+      "uniqueItems": false
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 8192
+          },
+          "collection_uuid": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "collection_uuid"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 200000,
+      "uniqueItems": false
+    },
+    "plan_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema",
+    "plan_id",
+    "device",
+    "library_uuid",
+    "snapshot_digest",
+    "inputs_digest",
+    "policy_version",
+    "capabilities_version",
+    "scope",
+    "operations",
+    "blockers",
+    "plan_digest"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kc.invalid/schemas/kc-edit-plan-v1.schema.json"
+}

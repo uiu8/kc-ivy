@@ -1,0 +1,406 @@
+{
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "kc-bookshelf-export/v2"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+    },
+    "generated_utc": {
+      "type": "string",
+      "maxLength": 8192
+    },
+    "device": {
+      "type": "object",
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+        },
+        "storage_uuid": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "serial_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "instance_id",
+        "storage_uuid",
+        "serial_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "firmware": {
+      "type": "string",
+      "maxLength": 8192
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+        },
+        "verified_operations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "create_collection",
+              "add_members",
+              "remove_members",
+              "rename_collection",
+              "delete_collection",
+              "verify_state"
+            ]
+          },
+          "maxItems": 200000,
+          "uniqueItems": true
+        },
+        "evidence": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "version",
+        "verified_operations",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "protected_collections": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+          },
+          "maxItems": 200000,
+          "uniqueItems": true
+        },
+        "max_members": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_request_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_creates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_rename_delete": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "version",
+        "protected_collections",
+        "max_members",
+        "max_request_bytes",
+        "max_creates",
+        "max_rename_delete"
+      ],
+      "additionalProperties": false
+    },
+    "mapping": {
+      "type": "object",
+      "properties": {
+        "stable": {
+          "type": "boolean"
+        },
+        "calibre_library_uuid": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "metadata_sha256": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "stable",
+        "calibre_library_uuid",
+        "metadata_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "books": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cde_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cde_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "calibre_uuid": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata_matches": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "collection_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "uuid",
+          "title",
+          "location",
+          "cde_key",
+          "cde_type",
+          "calibre_uuid",
+          "metadata_matches",
+          "collection_count"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 200000,
+      "uniqueItems": false
+    },
+    "collections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 8192
+          },
+          "complete": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "uuid",
+          "name",
+          "complete"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 200000,
+      "uniqueItems": false
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "collection_uuid": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "book_uuid": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "member_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "member_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "member_present": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sideloaded": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "collection_uuid",
+          "book_uuid",
+          "member_type",
+          "member_key",
+          "member_present",
+          "sideloaded",
+          "order"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 200000,
+      "uniqueItems": false
+    }
+  },
+  "required": [
+    "schema",
+    "snapshot_id",
+    "generated_utc",
+    "device",
+    "firmware",
+    "capabilities",
+    "policy",
+    "mapping",
+    "books",
+    "collections",
+    "relations"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kc.invalid/schemas/kc-bookshelf-export-v2.schema.json"
+}

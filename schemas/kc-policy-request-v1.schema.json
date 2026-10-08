@@ -1,0 +1,121 @@
+{
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "kc-policy-request/v1"
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+    },
+    "device": {
+      "type": "object",
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+        },
+        "storage_uuid": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "serial_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "instance_id",
+        "storage_uuid",
+        "serial_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "kind": {
+      "const": "set_protection_policy"
+    },
+    "before_version": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "protected_collections": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+          },
+          "maxItems": 200000,
+          "uniqueItems": true
+        },
+        "max_members": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_request_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_creates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_rename_delete": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "version",
+        "protected_collections",
+        "max_members",
+        "max_request_bytes",
+        "max_creates",
+        "max_rename_delete"
+      ],
+      "additionalProperties": false
+    },
+    "request_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema",
+    "job_id",
+    "device",
+    "kind",
+    "before_version",
+    "policy",
+    "request_digest"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kc.invalid/schemas/kc-policy-request-v1.schema.json"
+}

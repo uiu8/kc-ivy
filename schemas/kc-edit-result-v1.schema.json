@@ -1,0 +1,131 @@
+{
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "kc-edit-result/v1"
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+    },
+    "request_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "device": {
+      "type": "object",
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+        },
+        "storage_uuid": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "serial_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "instance_id",
+        "storage_uuid",
+        "serial_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "op_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[^\\x00-\\x1f/\\\\]+$"
+          },
+          "status": {
+            "enum": [
+              "confirmed",
+              "pending",
+              "conflict",
+              "failed",
+              "not_run"
+            ]
+          },
+          "observed_digest": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 8192
+          }
+        },
+        "required": [
+          "op_id",
+          "status",
+          "observed_digest",
+          "message"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 20000,
+      "uniqueItems": false
+    },
+    "snapshot_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 8192
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "result_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema",
+    "job_id",
+    "request_digest",
+    "device",
+    "operations",
+    "snapshot_id",
+    "result_digest"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kc.invalid/schemas/kc-edit-result-v1.schema.json"
+}

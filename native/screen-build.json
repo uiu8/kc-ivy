@@ -1,0 +1,9 @@
+{
+  "target": "arm-linux-musleabihf",
+  "glyphs_sha256": "3bad16417f7dc3e45c78ca9e5fe880a5acf56321919b66eb1232688eebc811f3",
+  "zig": "0.13.0",
+  "static": true,
+  "cpu": "cortex_a8",
+  "arm_sha256": "f0edcdc772e8d98aef5cfd89b4328ab6d9ff8141c4b6860b7ecb564fbf356600",
+  "source_sha256": "57b353be96365719005ac0f95a207e4db077e54eac5267eaad95a5cbdfa3b86d"
+}
