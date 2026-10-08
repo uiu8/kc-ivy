@@ -41,7 +41,7 @@ USB 磁盘模式及实验性 MTP 下，传书完成后点击“读取设备状�
 
 覆盖安装新KC++并重启，不删除原设置。保留使用同一插件标识，草稿/任务/书库状态延续。普通USB升级KC先备份启动入口；“恢复设备启动入口”可恢复，1.0支持回退中断后继续并拒绝覆盖被用户改动的入口。MTP使用“撤下实验入口并关闭MTP”。入口回退不会撤销已经执行的收藏夹修改，也不将MTP设备转换成磁盘模式。
 
-详见同目录 SUPPORT.md、KINDLE_ENVIRONMENT.md、CHANGELOG.md、BUILD.md、THIRD_PARTY.md。不要将个人诊断、书库或设备快照随源码公开。
+详见 [发布文档目录](release/README.md)、[SUPPORT.md](release/SUPPORT.md)、[KINDLE_ENVIRONMENT.md](release/KINDLE_ENVIRONMENT.md)、[CHANGELOG.md](release/CHANGELOG.md)、[BUILD.md](release/BUILD.md)、[THIRD_PARTY.md](release/THIRD_PARTY.md)。不要将个人诊断、书库或设备快照随源码公开。
 
 ## 设备版本管理
 
