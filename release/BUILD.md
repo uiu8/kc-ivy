@@ -43,7 +43,7 @@ calibre-debug -e shell_tests.py
 
 ## 当前版本集中发布检查
 
-release_check.py、verify_release.py、verify_source.py 自动读取 plugin/__init__.py 的当前版本。verify_release100.py 与 verify_source100.py 仅保留作历史记录，不用于当前发布验证。
+release_check.py、verify_release.py、verify_source.py 自动读取 plugin/__init__.py 的当前版本。公开源码包只保留当前发布检查和现行功能回归测试；历史版本专用测试仍在开发工作区，不随包分发。
 
 Windows下准备Git Bash、Node.js24（node:sqlite）和SQLite3.26 CLI；设置环境变量KC_BASH、KC_NODE、KC_SQLITE_CLI为对应可执行文件绝对路径。先生成上述主机测试程序，然后运行：
 
