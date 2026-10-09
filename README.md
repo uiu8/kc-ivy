@@ -5,6 +5,7 @@ Calibre 中整理 Kindle 收藏夹，预览后发送到 Kindle 执行，再读�
 正式版 1.0.26，配套 KC 0.6.15；项目代码采用 MIT。正式支持基线为 Windows、Calibre 9.15 及以上、已越狱的 PW5 / 5.17.1.0.3 / USB 磁盘。MTP、迁移分享和其他机型保留实验或理论支持标识，详见[Kindle运行环境与理论支持范围](release/KINDLE_ENVIRONMENT.md)。
 
 插件包和源码包可从 [GitHub Releases](https://github.com/uiu8/kc-ivy/releases/latest) 下载。
+<img width="2164" height="1397" alt="Clipboard 2026-10-09T06-13-02Z" src="https://github.com/user-attachments/assets/a9212ef0-e627-4b54-893d-f70c2033d7fa" />
 
 ## 安装
 
