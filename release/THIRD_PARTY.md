@@ -1,6 +1,6 @@
 # 来源与第三方组件
 
-KC++/KC项目代码由项目贡献者提供，按根目录MIT LICENSE授权。以下组件保留各自条款，不因本项目选择MIT而改变。
+kc-ivy/KC项目代码由项目贡献者提供，按根目录MIT LICENSE授权。以下组件保留各自条款，不因本项目选择MIT而改变。
 
 - Calibre为外部运行宿主，插件调用其API，不随包分发Calibre。官方源码与许可：https://github.com/kovidgoyal/calibre ，https://github.com/kovidgoyal/calibre/blob/master/LICENSE 。
 - kc-backup-check静态包含SQLite 3.26.0。SQLite发布代码为公有领域，官方说明：https://www.sqlite.org/copyright.html 。构建使用sqlite-amalgamation-3260000，校验摘要见native/check-build.json。

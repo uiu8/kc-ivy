@@ -359,7 +359,7 @@ def mtp_launchers(resources):
         + ' | cut -d \' \' -f 1)" = "' + sha256(resources['runtime/' + n]).hexdigest() + '" ]' for n in FILES)
     result = {}
     for name, option in [('KC刷新收藏夹', '--refresh'), ('KC执行收藏夹任务', ''), ('KC验证编辑能力', '--self-test')]:
-        body = '#!/bin/sh\nif ' + checks + '; then\nexec sh /mnt/us/kc-sync/runtime/' + VERSION + '/run.sh ' + option + '\nelse\necho "KC runtime incomplete; reinstall from KC++"\nfi\n'
+        body = '#!/bin/sh\nif ' + checks + '; then\nexec sh /mnt/us/kc-sync/runtime/' + VERSION + '/run.sh ' + option + '\nelse\necho "KC runtime incomplete; reinstall from kc-ivy"\nfi\n'
         result['documents/' + name + '-MTP.sh'] = body.encode('utf-8')
     return result
 

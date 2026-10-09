@@ -93,7 +93,7 @@ def notice_dialog(host):
     grouped+=_section('书库对应情况',library_hint)
     lines=raw.splitlines()
     external=[s for s in lines if s.startswith('外部任务回执')]
-    if external:grouped+=_section('其他来源的任务结果','设备里有结果未对应到当前书库的本地任务记录。KC++ 会保留它们，但不会据此更新当前书库的同步起点。任务编号可展开原始记录查看。')
+    if external:grouped+=_section('其他来源的任务结果','设备里有结果未对应到当前书库的本地任务记录。kc-ivy 会保留它们，但不会据此更新当前书库的同步起点。任务编号可展开原始记录查看。')
     retention=[s for s in lines if s.startswith('已清理') or s.startswith('诊断记录')]
     if retention:grouped+=_section('历史文件清理','\n'.join(retention)+'\n这是历史文件的保留情况，不要求你删除书籍或重新发送任务。')
     extra=[s for s in lines if s and not s.startswith(('状态生成于','含 ','外部任务回执','已清理','诊断记录','最近任务：'))]

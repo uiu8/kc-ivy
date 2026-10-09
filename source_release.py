@@ -20,7 +20,7 @@ files['README.md']=root/'release/README.md'
 tree=ast.parse((root/'plugin/__init__.py').read_text(encoding='utf8'))
 version=next(ast.literal_eval(n.value) for n in ast.walk(tree) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='version' for t in n.targets))
 version='.'.join(map(str,version))
-out=root/('dist/KC++_'+version+'_source.zip');manifest={}
+out=root/('dist/kc-ivy_'+version+'_source.zip');manifest={}
 with ZipFile(out,'w',ZIP_DEFLATED) as z:
     for name,path in sorted(files.items()):
         data=path.read_bytes();manifest[name]=hashlib.sha256(data).hexdigest()

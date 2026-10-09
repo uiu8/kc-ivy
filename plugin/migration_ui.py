@@ -53,7 +53,7 @@ class MigrationCenter(QDialog):
         super().__init__(host);self.host=host;self.service=host.service;self.state=self.service.state
         self.library=str(host.gui.current_db.library_id);self.api=host.gui.current_db.new_api
         self.session=None;self.manifest=None;self.share_path=None;self.reuse={};self.title_counts={};self.busy=False;self.work=None;self.share_field=None
-        self.setWindowTitle('KC++ 书架备份、迁移与分享');self.resize(1100,760)
+        self.setWindowTitle('kc-ivy 书架备份、迁移与分享');self.resize(1100,760)
         layout=QVBoxLayout(self)
         experimental=QLabel('迁移与分享为实验功能：模拟与临时 Calibre 书库检查已完成，两台真机迁移及大容量分享仍需用户自行验收。');experimental.setWordWrap(True);layout.addWidget(experimental)
         self.notice=QLabel('当前书库：'+str(getattr(host.gui.current_db,'library_path',self.library)));self.notice.setWordWrap(True);layout.addWidget(self.notice)
@@ -142,7 +142,7 @@ class MigrationCenter(QDialog):
             self.history();self.host.resume_reload()
         if device:
             def finished(job):finish((False,str(job.exception)) if job.failed else (True,job.result))
-            self.host.gui.device_manager.create_job(fn,finished,'KC++ 迁移任务传输')
+            self.host.gui.device_manager.create_job(fn,finished,'kc-ivy 迁移任务传输')
         else:
             self.work=Work(fn);self.work.signals.done.connect(finish,Qt.ConnectionType.QueuedConnection);QThreadPool.globalInstance().start(self.work)
     def cancel_work(self):

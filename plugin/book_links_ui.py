@@ -12,7 +12,7 @@ class BookLinksDialog(InkDialog):
         super().__init__(host);self.host=host;self.api=host.library_db.new_api;self.snapshot=host.snapshot
         self.setWindowTitle('设备书籍与书库记录');self.resize(1080,730)
         layout=QVBoxLayout(self);title=QLabel('设备书籍与书库记录');title.setObjectName('heading');layout.addWidget(title)
-        note=QLabel('可选：建立对应关系后，设备独有书籍也可用当前书库的同步列管理。仅在 KC++ 整理无需绑定。')
+        note=QLabel('可选：建立对应关系后，设备独有书籍也可用当前书库的同步列管理。仅在 kc-ivy 整理无需绑定。')
         note.setWordWrap(True);layout.addWidget(note)
         panels=QHBoxLayout();layout.addLayout(panels,1)
         self.device_search,self.device_table=self.panel(panels,'Kindle 书籍','搜索设备书名',['设备书籍','书库关联'])

@@ -1,14 +1,14 @@
 # Kindle 运行环境与理论支持范围
 
-本报告对应 KC++ 1.0.24 / Kindle 端 KC 0.6.15。它把“已经在本项目设备上跑过”和“根据公开型号、固件与运行条件推测可以适配”分开记录。理论支持不等于实测支持，也不建议为了进入某个区间而升级或降级固件。
+本报告对应 kc-ivy 1.0.25 / Kindle 端 KC 0.6.15。它把“已经在本项目设备上跑过”和“根据公开型号、固件与运行条件推测可以适配”分开记录。理论支持不等于实测支持，也不建议为了进入某个区间而升级或降级固件。
 
 ## 先看结论
 
-当前正式版的确定基线是：**已越狱、能运行 KC 入口、通过 USB 磁盘连接的 PW5，固件 5.17.1.0.3**。桌面端是 Windows + Calibre 9.15 及以上。这个组合有本项目保留的设备诊断、收藏夹读写链路和 KC++ 回执处理证据。
+当前正式版的确定基线是：**已越狱、能运行 KC 入口、通过 USB 磁盘连接的 PW5，固件 5.17.1.0.3**。桌面端是 Windows + Calibre 9.15 及以上。这个组合有本项目保留的设备诊断、收藏夹读写链路和 kc-ivy 回执处理证据。
 
 下面这些设备是优先理论候选：
 
-| 设备 | 公开固件参考范围 | KC++ 判断 | 传输状态 |
+| 设备 | 公开固件参考范围 | kc-ivy 判断 | 传输状态 |
 | --- | --- | --- | --- |
 | Paperwhite 4（PW4，第10代） | 5.16.3—5.18.1.1.1 | 现代 ARMv7/收藏夹数据库路线接近，优先验证 | USB 磁盘候选 |
 | Kindle 2019（KT4，第10代） | 5.16.3—5.18.1.1.1 | 与 PW4 同组，需重新做设备诊断和能力测试 | USB 磁盘候选 |
@@ -21,11 +21,11 @@
 | 设备 | 当前限制 |
 | --- | --- |
 | PW3、Oasis 1/2、Kindle 2016/2017 等旧触屏设备 | 可能复用收藏夹服务，但 SQLite、认证、启动入口和运行库需要单独核对 |
-| Kindle 2024、PW6、Colorsoft、Scribe | 现代机型的 USB 文件访问需要 MTP/专用传输；KC++ 的 MTP 入口属于实验功能，没有对应真机验收 |
+| Kindle 2024、PW6、Colorsoft、Scribe | 现代机型的 USB 文件访问需要 MTP/专用传输；kc-ivy 的 MTP 入口属于实验功能，没有对应真机验收 |
 | Kindle 1/2/DX/Keyboard、K4/K5、Kindle Touch 早期固件 | 不使用当前数据库和执行链作为默认目标，需独立 legacy 适配 |
 | 未越狱 Kindle、Fire 平板、Kindle 手机应用、KOReader 收藏 | 当前不支持。没有可启动 KC 或没有目标 Kindle 收藏夹服务时，Calibre 端不能替代设备端执行 |
 
-Amazon 的更新页目前列出：PW5 和 2022 Kindle 的最高公开版本为 5.19.2，PW4/2019 Kindle 为 5.18.1.1.1，Oasis 3 为 5.18.2.1.1；2024 Kindle、PW6、Colorsoft 和 Scribe 列为 5.20.1。这里的版本是型号公开更新参考，不是 KC++ 已验收版本。[Amazon Kindle 更新页](https://digprjsurvey.amazon.co.uk/csad/help/node/GKMQC26VQQMM8XSW?theme=light)
+Amazon 的更新页目前列出：PW5 和 2022 Kindle 的最高公开版本为 5.19.2，PW4/2019 Kindle 为 5.18.1.1.1，Oasis 3 为 5.18.2.1.1；2024 Kindle、PW6、Colorsoft 和 Scribe 列为 5.20.1。这里的版本是型号公开更新参考，不是 kc-ivy 已验收版本。[Amazon Kindle 更新页](https://digprjsurvey.amazon.co.uk/csad/help/node/GKMQC26VQQMM8XSW?theme=light)
 
 ## 已知 Kindle 运行环境
 
@@ -42,7 +42,7 @@ Amazon 的更新页目前列出：PW5 和 2022 Kindle 的最高公开版本为 5
 | 本地执行接口 | `127.0.0.1:9101/change`；认证令牌从设备 `/tmp/session_token` 读取，令牌不进入报告和发布包 |
 | 设备端运行包 | KC 0.6.15，包含 USB/MTP 入口、导出 SQL、备份检查和任务执行文件；ARM 辅助程序为静态构建 |
 
-KC 不直接改写 Kindle 的业务数据库。它只读导出 `cc.db` 的书籍、收藏夹和成员关系，任务执行时通过本地服务提交修改；提交前备份，提交后重新读取并逐项核验。KC++ 在电脑端负责列值、手动草稿、预览、任务记录和已确认结果回填。
+KC 不直接改写 Kindle 的业务数据库。它只读导出 `cc.db` 的书籍、收藏夹和成员关系，任务执行时通过本地服务提交修改；提交前备份，提交后重新读取并逐项核验。kc-ivy 在电脑端负责列值、手动草稿、预览、任务记录和已确认结果回填。
 
 ## 为什么不能只看型号或固件
 
@@ -62,7 +62,7 @@ KC 不直接改写 Kindle 的业务数据库。它只读导出 `cc.db` 的书籍
 ```text
 KC 读取 cc.db 与设备元数据
         ↓
-KC++ 读取快照、列值和本地草稿
+kc-ivy 读取快照、列值和本地草稿
         ↓
 计算差异 → 预览 → 本机保存任务
         ↓
@@ -70,10 +70,10 @@ USB 发布任务（MTP 为实验传输）
         ↓
 Kindle 执行 KC：备份 → /change → 回读核验 → 写回执
         ↓
-KC++ 重连读取回执，只回填已确认的列值
+kc-ivy 重连读取回执，只回填已确认的列值
 ```
 
-KC++ 不依赖旧 Kindle Collections 插件生成日常 JSON；旧 JSON 只用于兼容导入。设备端仍依赖越狱和可用启动器。当前实现以 Kindle 原生书籍索引和设备 UUID 为准，标题不是身份主键；未被 Kindle 索引的文件不能被强行当成已可操作的收藏夹成员。
+kc-ivy 不依赖旧 Kindle Collections 插件生成日常 JSON；旧 JSON 只用于兼容导入。设备端仍依赖越狱和可用启动器。当前实现以 Kindle 原生书籍索引和设备 UUID 为准，标题不是身份主键；未被 Kindle 索引的文件不能被强行当成已可操作的收藏夹成员。
 
 ## 证据、结论和代码位置
 
@@ -83,7 +83,7 @@ KC++ 不依赖旧 Kindle Collections 插件生成日常 JSON；旧 JSON 只用�
 | ARM 静态检查构建清单 | 当前辅助程序目标为 `arm-linux-musleabihf / cortex_a8` | `native/check-build.json`、`release/BUILD.md` |
 | 设备端入口和执行脚本 | 本地接口、备份、回读核验和任务回执链路 | `device/run.sh`、`device/refresh.sh`、`device/export.sql` |
 | MTP 适配代码和独立入口 | 可以实验性尝试传输，但没有 KPW6/2024 真机结论 | `plugin/mtp.py`、`release/MTP新书实验说明.md` |
-| 自动化测试 | 验证 Qt 界面、模拟设备、临时 Calibre 库和发布包一致性 | `dist/release-1.0.24/source-check.json` 及本次发布校验日志 |
+| 自动化测试 | 验证 Qt 界面、模拟设备、临时 Calibre 库和发布包一致性 | `dist/release-1.0.25/source-check.json` 及本次发布校验日志 |
 
 ## 发布时应如何表述
 

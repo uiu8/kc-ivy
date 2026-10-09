@@ -176,12 +176,12 @@ class Work(QRunnable):
 
 
 class KCPlusAction(InterfaceAction):
-    name = 'KC++'
-    action_spec = ('KC++', None, '整理 Kindle 收藏夹并预览编辑', None)
+    name = 'kc-ivy'
+    action_spec = ('kc-ivy', None, '整理 Kindle 收藏夹并预览编辑', None)
     def genesis(self):
         self.window = None
         pixmap = QPixmap()
-        pixmap.loadFromData(self.load_resources(['images/kcpp.svg'])['images/kcpp.svg'], 'SVG')
+        pixmap.loadFromData(self.load_resources(['images/kc-ivy.svg'])['images/kc-ivy.svg'], 'SVG')
         self.qaction.setIcon(QIcon(pixmap))
         self.qaction.triggered.connect(self.open_manager)
         menu=QMenu(self.gui)
@@ -190,7 +190,7 @@ class KCPlusAction(InterfaceAction):
         entries=[('新建收藏夹','create_collection'),('预览修改','calculate_preview'),
             ('书架与同步设置','configure_rules'),('查看设备报告','show_device_report'),('整理收藏夹','show_collections'),
             ('把 Kindle 书架导入 Calibre 列','import_column'),('恢复 Calibre 列备份','restore_column'),
-            ('首次使用','first_run_guide'),('关于 KC++','about')]
+            ('首次使用','first_run_guide'),('关于 kc-ivy','about')]
         for label,method in entries:
             action=menu.addAction(label)
             def invoke(checked=False,name=method):
@@ -217,7 +217,7 @@ class KCPlusAction(InterfaceAction):
         self.window.after_load_action=action
         self.window.load()
     def metadata_ready(self, *args):
-        # Connecting a device alone must not instantiate KC++ or scan books.
+        # Connecting a device alone must not instantiate kc-ivy or scan books.
         # An existing session may receive confirmed results without opening UI.
         if self.window is None or not self.window.same_library():return
         if not self.window.busy:self.window.load(automatic=not self.window.isVisible())
@@ -252,12 +252,12 @@ class Manager(QDialog, Pages):
         self.reload_requested=False
         self.pool = QThreadPool(self); self.pool.setMaxThreadCount(1)
         from . import KCPlus
-        self.setWindowTitle('KC++ '+'.'.join(map(str,KCPlus.version))+' · 收藏夹管理')
+        self.setWindowTitle('kc-ivy '+'.'.join(map(str,KCPlus.version))+' · 收藏夹管理')
         self.resize(1440,900)
         outer=QHBoxLayout(self);outer.setContentsMargins(0,0,0,0);outer.setSpacing(0)
         navigation=QWidget();navigation.setObjectName('navigation');navigation.setFixedWidth(154);outer.addWidget(navigation)
         nav_layout=QVBoxLayout(navigation);nav_layout.setContentsMargins(10,18,10,12)
-        brand=QLabel('KC++');brand.setObjectName('heading');nav_layout.addWidget(brand)
+        brand=QLabel('kc-ivy');brand.setObjectName('heading');nav_layout.addWidget(brand)
         self.navigation_layout=nav_layout;self.navigation_buttons=[]
         panel=QWidget();outer.addWidget(panel,1);root=QVBoxLayout(panel);root.setContentsMargins(18,12,18,12);root.setSpacing(10)
         heading=QLabel('我的收藏夹');self.heading=heading;heading.setObjectName('heading');root.addWidget(heading)
@@ -282,7 +282,7 @@ class Manager(QDialog, Pages):
         self.cancel_read=QPushButton('取消扫描');self.cancel_read.clicked.connect(lambda:self._scan_event.set());feedback.addWidget(self.cancel_read)
         self.read_feedback.hide();root.addWidget(self.read_feedback)
         notice_bar=QHBoxLayout();root.addLayout(notice_bar)
-        self.status = NoticeLabel('打开 KC++ 后读取 Kindle 状态；仅连接设备不会弹出插件窗口。');self.status.setMaximumHeight(82);notice_bar.addWidget(self.status,1)
+        self.status = NoticeLabel('打开 kc-ivy 后读取 Kindle 状态；仅连接设备不会弹出插件窗口。');self.status.setMaximumHeight(82);notice_bar.addWidget(self.status,1)
         self.notice_details=QPushButton('提示详情');self.notice_details.clicked.connect(self.show_notice_details);notice_bar.addWidget(self.notice_details)
         self.dismiss_notice_button=QPushButton('忽略本条');self.dismiss_notice_button.setToolTip('仅隐藏当前提示，不更改任务结果。新的状态或错误仍会显示。');self.dismiss_notice_button.clicked.connect(self.dismiss_notice);notice_bar.addWidget(self.dismiss_notice_button)
         self.main_splitter=QSplitter(Qt.Orientation.Horizontal);root.addWidget(self.main_splitter,1)
@@ -367,7 +367,7 @@ class Manager(QDialog, Pages):
             ('备份、迁移与分享', [('书架备份与新机迁移 / 书库分享',self.migration_center)]),
             ('旧插件迁移与其他导入', [('读取设备旧收藏文件',self.import_legacy),('导入旧 collection(s).json / .full',self.import_external_legacy),('导入原 Kindle Collections 配置',self.migrate_settings),('导入为单值文本 / 长文本 / 布尔摘要',self.import_summary)]),
             ('设备安装与维护', [('安装 / 升级配套 KC',self.install_device),('实验性 MTP 传输',self.mtp_settings),('准备真机编辑能力测试',self.probe_device),('撤销未执行的能力测试',self.cancel_device_probe),('恢复未完成快照',self.recover_snapshot),('恢复设备启动入口',self.rollback_device),('设备版本管理',self.runtime_manager),('空间占用与安全清理',self.storage_manager)]),
-            ('帮助', [('首次使用',self.first_run_guide),('关于 KC++',self.about)])]
+            ('帮助', [('首次使用',self.first_run_guide),('关于 kc-ivy',self.about)])]
         self.column_only_buttons=[]
         for title,actions in sections:
             group=QGroupBox(title);grid=QGridLayout(group)
@@ -470,13 +470,13 @@ class Manager(QDialog, Pages):
             title='联合整理 · '+('原生标签' if p['field']=='tags' else name)
             detail=f'同步列：{name}（{p["field"]}）\n列同步范围：{scope}\n已确认的收藏整理结果会回填此列。'
         elif p.get('sync_mode')=='column':
-            title='联合整理 · 尚未选择同步列';detail='请在同步设置选择专用书架列、原生标签，或仅在 KC++ 整理。'
+            title='联合整理 · 尚未选择同步列';detail='请在同步设置选择专用书架列、原生标签，或仅在 kc-ivy 整理。'
         else:
-            title='仅 KC++ 整理';detail='收藏归属来自设备快照和草稿，无需创建或选择 Calibre 列。'
+            title='仅 kc-ivy 整理';detail='收藏归属来自设备快照和草稿，无需创建或选择 Calibre 列。'
         self.mode_summary.setText(self.mode_summary.fontMetrics().elidedText(title,Qt.TextElideMode.ElideRight,330))
         self.mode_summary.setToolTip(title+'\n'+detail)
         for button in self.column_only_buttons:
-            button.setEnabled(uses_column(p));button.setToolTip('列同步模式使用；纯 KC++ 模式无需此步骤' if not uses_column(p) else '')
+            button.setEnabled(uses_column(p));button.setToolTip('列同步模式使用；纯 kc-ivy 模式无需此步骤' if not uses_column(p) else '')
 
     def notice_key(self):
         return digest([self.library_id,(self.snapshot or {}).get('device'),self.status.text()])
@@ -562,7 +562,7 @@ class Manager(QDialog, Pages):
             self.update_buttons()
             self.resume_reload()
         def bound_work(*args,**kwargs):
-            if not self.same_library():raise Invalid('书库已切换，请在当前书库重新打开 KC++')
+            if not self.same_library():raise Invalid('书库已切换，请在当前书库重新打开 kc-ivy')
             return fn(*args,**kwargs)
         self.gui.device_manager.create_job(bound_work,finished,description)
 
@@ -646,7 +646,7 @@ class Manager(QDialog, Pages):
                 try:messages.append(automatic_retention(store,self.service.state,self.service.key(self.library_id,snapshot)))
                 except Exception as e:messages.append('历史清理暂未完成，已保留恢复记录：'+str(e))
             return snapshot,receipts,Catalog(snapshot),messages,changed
-        self.device_job(work,self.loaded,'KC++ 读取设备快照与回执',read_progress=True,automatic=automatic)
+        self.device_job(work,self.loaded,'kc-ivy 读取设备快照与回执',read_progress=True,automatic=automatic)
 
     def loaded(self, result):
         self.snapshot,receipts,self.catalog=result[:3]
@@ -680,7 +680,7 @@ class Manager(QDialog, Pages):
         elif self.service:
             profile=self.service.profile(self.library_id,self.snapshot)
             if profile.get('sync_mode')=='column' and not profile.get('field'):
-                summary='尚未选择同步列：请在“同步设置”选择专用书架列、原生标签，或仅 KC++ 整理。';level='warning'
+                summary='尚未选择同步列：请在“同步设置”选择专用书架列、原生标签，或仅 kc-ivy 整理。';level='warning'
         self.show_notice(self.status.text(),level,summary)
         if self.service:
             from .readiness import attention_jobs
@@ -1044,7 +1044,7 @@ class Manager(QDialog, Pages):
         def done(result):
             self.issues.extend(result['issues']);self.queue(result['intents']);self.scope.update(result['scope'])
             QTimer.singleShot(0,self.calculate_preview)
-        self.device_job(work,done,'KC++ 自动导入设备旧收藏文件')
+        self.device_job(work,done,'kc-ivy 自动导入设备旧收藏文件')
     def import_external_legacy(self):
         path,_=QFileDialog.getOpenFileName(self,'导入外部旧收藏夹文件','','JSON / full (*.json *.full *.backup);;所有文件 (*)')
         if not path: return
@@ -1083,10 +1083,10 @@ class Manager(QDialog, Pages):
             self.persist_draft();self.browse()
             self.show_notice('任务已发送：'+job+'\n'+next_step,'warning','等待设备执行：'+next_step)
             self.workflow_status.setText('当前进度：已发送 → 等待 Kindle 执行 → 重连确认；发送成功不代表执行成功')
-        self.device_job(work,sent,'KC++ 自动发送已预览任务')
+        self.device_job(work,sent,'kc-ivy 自动发送已预览任务')
     def save_report(self):
         if not self.preview: return
-        path,_=QFileDialog.getSaveFileName(self,'保存诊断预览（不是日常传输步骤）','KC++-preview.json','JSON (*.json)')
+        path,_=QFileDialog.getSaveFileName(self,'保存诊断预览（不是日常传输步骤）','kc-ivy-preview.json','JSON (*.json)')
         if path:
             value=self.preview.data;catalog=self.catalog;issues=list(self.issues)
             def write_report():

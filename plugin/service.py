@@ -31,7 +31,7 @@ class Service:
         if profile.get('sync_mode')=='manual':
             return dict(rows=[],user_categories={},fingerprint=digest([]))
         if profile.get('sync_mode')=='column' and not profile.get('field'):
-            raise Invalid('请先在 KC++“同步设置 → 书架与同步设置”选择原生标签或多值文本自定义列。需要专用列时，可在 Calibre“首选项 → 添加自定义栏目”创建。')
+            raise Invalid('请先在 kc-ivy“同步设置 → 书架与同步设置”选择原生标签或多值文本自定义列。需要专用列时，可在 Calibre“首选项 → 添加自定义栏目”创建。')
         if not profile['field']:
             if profile['rules']:raise Invalid('规则同步前请先指定往返列并采用书籍范围')
             return dict(rows=[],user_categories={},fingerprint=digest([]))
@@ -70,7 +70,7 @@ class Service:
         from .baseline import align
         p=self.profile(library,snapshot)
         from .usability import uses_column
-        if not uses_column(p):raise Invalid('纯 KC++ 模式无需校准列；如需使用列，请先在同步设置中启用')
+        if not uses_column(p):raise Invalid('纯 kc-ivy 模式无需校准列；如需使用列，请先在同步设置中启用')
         if any(j['status'] not in ('complete','closed') for j in self.state.job_summaries(self.key(library,snapshot))):
             raise Invalid('有待发送或待确认任务，请先完成原任务再校准')
         m=self.metadata(api,p);updated,rows=align(snapshot,m,p,legacy_names=legacy_names)

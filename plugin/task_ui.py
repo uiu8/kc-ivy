@@ -102,7 +102,7 @@ class TaskHistoryDialog(InkDialog):
 
 
 def first_use_dialog(host):
-    d,layout=base(host,'开始使用 KC++','首次准备完成后，日常只需整理、预览和发送；本页可随时关闭。')
+    d,layout=base(host,'开始使用 kc-ivy','首次准备完成后，日常只需整理、预览和发送；本页可随时关闭。')
     d.resize(850,730)
     scroll=QScrollArea();scroll.setWidgetResizable(True);layout.addWidget(scroll,1)
     content=QWidget();cards=QVBoxLayout(content);cards.setContentsMargins(0,0,8,0);cards.setSpacing(10);scroll.setWidget(content)
@@ -110,7 +110,7 @@ def first_use_dialog(host):
         ('01','安装配套 KC','连接受支持的越狱 Kindle，等待 Calibre 识别后安装。已有用户无需重复安装。','安装配套 KC',host.install_device),
         ('02','读取现有收藏夹','安全弹出 → 在 Kindle 运行“KC刷新收藏夹” → 重连电脑，再点击读取。此步骤不修改收藏夹。','读取设备状态',host.load),
         ('03','验证编辑能力','准备测试后安全弹出，在 Kindle 运行“KC验证编辑能力”，重连读取结果。首次使用或固件变更后需要验证。','准备能力测试',host.probe_device),
-        ('04','选择整理方式','专用书架列（推荐）：选择已有列或直接新建，名称不限。也可使用原生标签，或仅在 KC++ 整理而不使用列。','同步设置',host.configure_rules),
+        ('04','选择整理方式','专用书架列（推荐）：选择已有列或直接新建，名称不限。也可使用原生标签，或仅在 kc-ivy 整理而不使用列。','同步设置',host.configure_rules),
         ('可选','把现有收藏关系导入列','使用列同步时，可先预览再导入 Kindle 现有归属。已有列值请先核对，避免覆盖自己的整理结果。','预览归属导入',host.import_column)]
     for number,title,text,button_text,fn in steps:
         card=QFrame();card.setStyleSheet('QFrame {background:#fbf9f3; border:1px solid #d7d0c3; border-radius:7px;} QLabel {border:0; background:transparent;}');row=QHBoxLayout(card);row.setContentsMargins(16,12,16,12)

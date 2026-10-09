@@ -8,7 +8,7 @@ from .protocol import Invalid
 
 def create_column(host, lookup, title):
     if not host.same_library():
-        raise Invalid('书库已切换，请重新打开 KC++ 后创建。')
+        raise Invalid('书库已切换，请重新打开 kc-ivy 后创建。')
     if host.busy:
         raise Invalid('请等待当前任务结束后创建。')
     if getattr(host.gui, 'must_restart_before_config', False):
@@ -50,7 +50,7 @@ class CreateShelfColumn(InkDialog):
         hint = QLabel('名称可自定；查找名称例如 bookshelves，无须填写 #。\n类型固定为“逗号分隔的文本，类似标签”。')
         hint.setWordWrap(True); layout.addWidget(hint)
         help_text = QTextBrowser(); help_text.setObjectName('column_creation_instructions')
-        help_text.setPlainText('创建后如何使用\n\n1. 完成当前操作，退出并重新打开 Calibre。\n2. 打开 KC++ → 同步设置 → 书架与同步设置，在“同步方式”选择新列并保存。\n3. 如需保留 Kindle 现有收藏归属，可另行预览导入此列。\n\n创建列不会移动书籍，也不会自动导入或覆盖收藏归属。若使用原生“标签”，无需创建列；整理结果会回填标签。')
+        help_text.setPlainText('创建后如何使用\n\n1. 完成当前操作，退出并重新打开 Calibre。\n2. 打开 kc-ivy → 同步设置 → 书架与同步设置，在“同步方式”选择新列并保存。\n3. 如需保留 Kindle 现有收藏归属，可另行预览导入此列。\n\n创建列不会移动书籍，也不会自动导入或覆盖收藏归属。若使用原生“标签”，无需创建列；整理结果会回填标签。')
         layout.addWidget(help_text, 1)
         self.notice = QLabel('创建后需重启 Calibre，新列才可选择。')
         self.notice.setWordWrap(True); self.notice.setObjectName('column_creation_status')

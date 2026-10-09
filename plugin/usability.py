@@ -46,7 +46,7 @@ def task_status(job,state):
         expected={o['op_id'] for o in job['request']['operations']}
         if job.get('status')=='closed':return '已关闭（历史结果）',f'原任务成功 {len(confirmed)}/{len(expected)} 项；不会自动重试，可在任务记录查看详情'
         if confirmed!=expected:return ('部分成功' if confirmed else '未完成'),'先刷新并读取设备状态，再恢复未完成项为草稿'
-        if 'column_field' in job and not job['column_field']:return '已完成（无需列回填）','无需重发，可继续在 KC++ 整理'
+        if 'column_field' in job and not job['column_field']:return '已完成（无需列回填）','无需重发，可继续在 kc-ivy 整理'
         if state.column_pending(job['request']['job_id']):return '执行完成，回填待处理','在列值导入与回填中处理已确认结果'
         changed={o['op_id'] for o in job['request']['operations'] if o['kind']!='verify_state'}
         if changed.issubset(state.baseline_done(job['request']['job_id'])):

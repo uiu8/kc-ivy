@@ -29,7 +29,7 @@ class Pages:
         from .transport import archive_snapshot_partial
         self.device_job(lambda:archive_snapshot_partial(connected_store(self.gui.device_manager)),
             lambda path:self.error('已归档：'+path+'；请弹出 Kindle 后运行刷新收藏夹。' if path else '没有未完成的快照文件，无需处理。'),
-            'KC++ 归档未完成快照')
+            'kc-ivy 归档未完成快照')
 
     def task_history(self,selected_job_id=None):
         try:
@@ -79,10 +79,10 @@ class Pages:
                 dialog,button=runtime_dialog(self,plan)
                 def run():
                     dialog.accept()
-                    self.device_job(lambda:cleanup(connected_store(self.gui.device_manager),plan),lambda n:self.error(f'已清理 {n} 个旧运行版本及对应过期入口备份；任务数据保留。'),'KC++ 清理旧运行版本')
+                    self.device_job(lambda:cleanup(connected_store(self.gui.device_manager),plan),lambda n:self.error(f'已清理 {n} 个旧运行版本及对应过期入口备份；任务数据保留。'),'kc-ivy 清理旧运行版本')
                 button.clicked.connect(run)
                 dialog.exec()
-            self.device_job(scan,show,'KC++ 读取设备运行版本')
+            self.device_job(scan,show,'kc-ivy 读取设备运行版本')
         except Exception as e:self.error(e)
 
     def storage_manager(self):
@@ -103,10 +103,10 @@ class Pages:
                 def run():
                     from .storage import cleanup
                     dialog.accept()
-                    self.device_job(lambda:cleanup(connected_store(self.gui.device_manager,p['device']),self.service.state.jobs(key),items),lambda count:self.error(f'已清理 {count} 个旧诊断文件；任务和备份已保留。'),'KC++ 清理已预览的诊断文件')
+                    self.device_job(lambda:cleanup(connected_store(self.gui.device_manager,p['device']),self.service.state.jobs(key),items),lambda count:self.error(f'已清理 {count} 个旧诊断文件；任务和备份已保留。'),'kc-ivy 清理已预览的诊断文件')
                 button.clicked.connect(run)
                 dialog.exec()
-            self.device_job(scan,show,'KC++ 统计空间与生成清理预览')
+            self.device_job(scan,show,'kc-ivy 统计空间与生成清理预览')
         except Exception as e:self.error(e)
 
     def global_settings(self):
@@ -145,7 +145,7 @@ class Pages:
         choices.currentIndexChanged.connect(display);display()
         save=QPushButton('导出当前报告 CSV');layout.addWidget(save)
         def export():
-            path,_=QFileDialog.getSaveFileName(dialog,'保存报告','KC++-report.csv','CSV (*.csv)')
+            path,_=QFileDialog.getSaveFileName(dialog,'保存报告','kc-ivy-report.csv','CSV (*.csv)')
             if path:
                 import csv
                 with open(path,'w',encoding='utf-8-sig',newline='') as stream:
@@ -154,7 +154,7 @@ class Pages:
     def about(self):
         from . import KCPlus
         from .install import VERSION
-        QMessageBox.information(self,'关于 KC++','KC++ '+'.'.join(map(str,KCPlus.version))+' 正式版 / KC '+VERSION+'\n主要使用环境：Windows / Calibre 9.15+；历史真机记录：PW5、5.17.1.0.3、USB 磁盘。\n其他型号与固件的理论范围见随包“Kindle 运行环境与理论支持范围”，不代表实测通过。\nMTP、迁移分享及其他平台保留实验标识；新增型号与实验功能仍需真机验收。\n无需安装原 Kindle Collections；修改需预览、设备执行和确认。')
+        QMessageBox.information(self,'关于 kc-ivy','kc-ivy '+'.'.join(map(str,KCPlus.version))+' 正式版 / KC '+VERSION+'\n主要使用环境：Windows / Calibre 9.15+；历史真机记录：PW5、5.17.1.0.3、USB 磁盘。\n其他型号与固件的理论范围见随包“Kindle 运行环境与理论支持范围”，不代表实测通过。\nMTP、迁移分享及其他平台保留实验标识；新增型号与实验功能仍需真机验收。\n无需安装原 Kindle Collections；修改需预览、设备执行和确认。')
     def rollback_device(self):
         try:
             from .mtp import is_mtp
@@ -166,10 +166,10 @@ class Pages:
             labels=[p.parent.name for p in backups]
             label,ok=QInputDialog.getItem(self,'恢复设备入口','保留 KC 数据。回退后旧追加同步可能再次加入旧输入的归属，请勿继续运行旧输入。',labels,len(labels)-1,False)
             if not ok:return
-            self.device_job(lambda:rollback(self.gui.device_manager,backups[labels.index(label)].parent),lambda n:self.error(f'已恢复 {n} 个入口；设备数据保留。'),'KC++ 回退启动入口')
+            self.device_job(lambda:rollback(self.gui.device_manager,backups[labels.index(label)].parent),lambda n:self.error(f'已恢复 {n} 个入口；设备数据保留。'),'kc-ivy 回退启动入口')
         except Exception as e:self.error(e)
     def require_profile(self):
-        if not self.same_library():raise Invalid('书库已切换，请重新打开 KC++')
+        if not self.same_library():raise Invalid('书库已切换，请重新打开 kc-ivy')
         if self.busy:raise Invalid('请等待当前任务完成')
         if not self.snapshot or not self.service:raise Invalid('请先连接设备并读取状态')
         library=self.library_id
@@ -298,7 +298,7 @@ class Pages:
             job=self.service.state.job(jobs[labels.index(label)]['job_id']);api=self.library_db.new_api
             if not job.get('result'):raise Invalid('此任务没有可回填的设备结果')
             if job.get('column_field')=='':
-                self.show_notice('此任务使用纯 KC++ 模式，已确认的结果无需列回填。需要展示到列时，可另行预览导入 Kindle 当前归属。','success');return
+                self.show_notice('此任务使用纯 kc-ivy 模式，已确认的结果无需列回填。需要展示到列时，可另行预览导入 Kindle 当前归属。','success');return
             if job.get('column_field',p['field'])!=p['field']:raise Invalid('原任务书架列与当前设置不同，不能回填到其他列')
             def work():
                 pending=self.service.state.column_pending(job['request']['job_id'])
@@ -361,7 +361,7 @@ class Pages:
         column.setCurrentIndex(max(0,column.findData(p['field'])))
         from .usability import uses_column
         mode=QComboBox();mode.setObjectName('sync_mode')
-        for label,value in [('专用书架列（推荐）','custom'),('使用原生标签','tags'),('仅在 KC++ 整理','manual')]:mode.addItem(label,value)
+        for label,value in [('专用书架列（推荐）','custom'),('使用原生标签','tags'),('仅在 kc-ivy 整理','manual')]:mode.addItem(label,value)
         selected_mode=('tags' if p['field']=='tags' else 'custom') if uses_column(p) or p.get('sync_mode')=='column' else 'manual'
         mode.setCurrentIndex(mode.findData(selected_mode))
         def selected_field():
@@ -369,7 +369,7 @@ class Pages:
             if mode.currentData()=='tags':return 'tags' if 'tags' in fields else ''
             return column.currentData()
         layout.addWidget(QLabel('如何管理收藏归属'))
-        mode.setToolTip('专用列和原生标签均与 KC++ 联合整理；仅 KC++ 模式不需要列。切换不会清空已有列值或 Kindle 收藏关系。')
+        mode.setToolTip('专用列和原生标签均与 kc-ivy 联合整理；仅 kc-ivy 模式不需要列。切换不会清空已有列值或 Kindle 收藏关系。')
         layout.addWidget(mode)
         column_label=QLabel('选择专用书架列');layout.addWidget(column_label)
         column.setToolTip('可选任意多值文本自定义列，名称不限。每个值对应一个收藏夹；一本书可以有多个值。')
@@ -380,7 +380,7 @@ class Pages:
         column_help.setToolTip('已有合适列可直接选择，无须新建。查找名称与列标题均可自定。')
         column_help.clicked.connect(self.column_creation_help)
         help_bar=QHBoxLayout();help_bar.addWidget(column_help);help_bar.addStretch();layout.addLayout(help_bar)
-        column_notice=QLabel('尚未选择同步列。请选择已有列；也可新建书架列，或改用原生标签 / 仅 KC++ 整理。')
+        column_notice=QLabel('尚未选择同步列。请选择已有列；也可新建书架列，或改用原生标签 / 仅 kc-ivy 整理。')
         column_notice.setObjectName('missing_column_notice');column_notice.setWordWrap(True);layout.addWidget(column_notice)
         layout=sections[1]
         from .scope import available_books
@@ -388,7 +388,7 @@ class Pages:
         range_mode=QComboBox();range_mode.setObjectName('scope_mode')
         range_mode.addItems(['全部已匹配书籍（包含以后新加入的书）','只同步我选中的书籍'])
         range_mode.setCurrentIndex(0 if p.get('scope_mode','all' if not p['field'] else 'selected')=='all' else 1)
-        layout.addWidget(QLabel('列同步范围（不限制 KC++ 手动整理）：'))
+        layout.addWidget(QLabel('列同步范围（不限制 kc-ivy 手动整理）：'))
         layout.addWidget(range_mode)
         range_hint=QLabel('全部模式只包含能可靠对应当前 Calibre 书库的 Kindle 书籍；新书在生成预览时自动加入。空列不会清空 Kindle 已有归属。')
         range_hint.setWordWrap(True);layout.addWidget(range_hint)
@@ -413,12 +413,12 @@ class Pages:
         layout.addWidget(existing);layout.addStretch()
         def show_existing():
             field=selected_field()
-            if mode.currentData()=='manual':text='仅在 KC++ 整理，无需创建或选择列。'
+            if mode.currentData()=='manual':text='仅在 kc-ivy 整理，无需创建或选择列。'
             elif not field:text='联合整理 · 尚未选择同步列'
             else:
                 state='当前使用' if field==p['field'] and uses_column(p) else '保存后使用'
                 name=self.library_db.new_api.field_metadata[field].get('name',field)
-                text=state+'：'+name+'\nCalibre 列与 KC++ 共同管理收藏归属。'
+                text=state+'：'+name+'\nCalibre 列与 kc-ivy 共同管理收藏归属。'
             existing.setText(text)
         layout=sections[2]
         extra_label=QLabel('额外分类（可选） · 按作者、丛书、标签等生成收藏夹。')
@@ -454,7 +454,7 @@ class Pages:
         layout=sections[3]
         layout.addWidget(QLabel('保护 Kindle 已有收藏关系'))
         preserve=QCheckBox('保留未纳管的收藏夹及归属（始终启用）');preserve.setChecked(True);preserve.setEnabled(False);layout.addWidget(preserve)
-        layout.addWidget(QLabel('KC++ 不得修改或删除的收藏夹名称：每行一个，正则以 re: 开头'))
+        layout.addWidget(QLabel('kc-ivy 不得修改或删除的收藏夹名称：每行一个，正则以 re: 开头'))
         patterns=QTextEdit();patterns.setObjectName('protected_patterns');patterns.setMinimumHeight(160);patterns.setPlaceholderText('每行一个收藏夹名称，例如：待读\n也可填写以 re: 开头的正则表达式');patterns.setPlainText('\n'.join(p['settings']['ignore_all']));layout.addWidget(patterns)
         protected=set(self.snapshot['policy']['protected_collections'])
         names=[c['name'] for c in self.snapshot['collections'] if c['uuid'] in protected]
@@ -469,7 +469,7 @@ class Pages:
             tabs.setTabEnabled(1,enabled);tabs.setTabEnabled(2,enabled)
             range_mode.setEnabled(enabled)
             scope_panel.setVisible(enabled and range_mode.currentIndex()==1)
-            range_hint.setText(('新匹配的书籍会自动加入；新书的空列不会清空原归属。' if range_mode.currentIndex()==0 else '仅同步下方选中的书籍，新书不会自动加入。') if enabled else '纯 KC++ 模式不使用列同步范围。')
+            range_hint.setText(('新匹配的书籍会自动加入；新书的空列不会清空原归属。' if range_mode.currentIndex()==0 else '仅同步下方选中的书籍，新书不会自动加入。') if enabled else '纯 kc-ivy 模式不使用列同步范围。')
             for i in range(scope_bar.count()):scope_bar.itemAt(i).widget().setEnabled(enabled)
             show_existing()
         mode.currentIndexChanged.connect(mode_changed);range_mode.currentIndexChanged.connect(mode_changed);column.currentIndexChanged.connect(mode_changed);mode_changed()
@@ -487,13 +487,13 @@ class Pages:
             settings=copy.deepcopy(p['settings'])
             settings.update(ignore_case=case.isChecked(),ignore_all=[v for v in patterns.toPlainText().splitlines() if v],keep_kindle_only=True)
             if mode.currentData()=='manual':
-                if QMessageBox.question(self,'使用纯 KC++ 整理', '后续任务只采用手动草稿；原书架列和规则配置保留但暂停使用，不清空列值。\n切回列模式时需重新预览；已在 Kindle 确认的手动移除不会被盲目加回。\n保存此设置？')!=QMessageBox.StandardButton.Yes:return
+                if QMessageBox.question(self,'使用纯 kc-ivy 整理', '后续任务只采用手动草稿；原书架列和规则配置保留但暂停使用，不清空列值。\n切回列模式时需重新预览；已在 Kindle 确认的手动移除不会被盲目加回。\n保存此设置？')!=QMessageBox.StandardButton.Yes:return
                 def saved_manual(value):
                     self.preview=None;self.prepared=None;self.preview_ready=False;self.plan_model.replace([])
-                    self.refresh_mode_summary();self.show_notice('已切换为纯 KC++ 整理；无需列回填，请重新预览。','success');self.update_buttons()
+                    self.refresh_mode_summary();self.show_notice('已切换为纯 kc-ivy 整理；无需列回填，请重新预览。','success');self.update_buttons()
                 QTimer.singleShot(0,lambda:self.background(lambda:self.service.configure_manual(p['library_uuid'],self.snapshot,p['revision'],settings),saved_manual))
                 return
-            if not selected_field():raise Invalid('列同步需要多值文本列；可先在 Calibre 创建，或选择纯 KC++ 模式')
+            if not selected_field():raise Invalid('列同步需要多值文本列；可先在 Calibre 创建，或选择纯 kc-ivy 模式')
             rules=[]
             for row in range(grid.rowCount()):
                 r=copy.deepcopy(p['rules'][row]) if row<len(p['rules']) else default_rule('tags')
@@ -559,7 +559,7 @@ class Pages:
                 store=connected_store(self.gui.device_manager)
                 if not getattr(store,'experimental_mtp',False):raise Invalid('当前连接不是已启用的实验性 MTP')
                 return store.retry_transfer()
-            self.device_job(work,self.error,'KC++ 核对原 MTP 传输')
+            self.device_job(work,self.error,'kc-ivy 核对原 MTP 传输')
         retry.clicked.connect(resume)
         withdraw=QPushButton('撤下实验入口并关闭 MTP');layout.addWidget(withdraw)
         withdraw.setEnabled(can_enable(self.gui.device_manager))
@@ -582,17 +582,17 @@ class Pages:
             '仅删除核验一致的三个 -MTP 启动入口，保留原入口、运行文件、书籍、收藏夹和全部任务记录。\n'
             '这不会撤销已经执行的收藏夹修改，也不会将 MTP 设备变成普通 USB 磁盘。\n'
             '有未完成任务或入口内容不符时将停止；关闭开关后仍可使用此回退入口。是否继续？')!=QMessageBox.StandardButton.Yes:return
-        resources=self.gui.iactions['KC++'].load_resources(['runtime/'+name for name in FILES])
+        resources=self.gui.iactions['kc-ivy'].load_resources(['runtime/'+name for name in FILES])
         manager=self.gui.device_manager
         def done(count):
             JSONConfig('plugins/kc-plus-transport')[PREFERENCE]=False
             self.error(f'已撤下 {count} 个实验入口并关闭 MTP；原入口及全部数据保留。没有原入口的新设备需要另行安装可用的 KC。')
-        self.device_job(lambda:rollback_mtp(manager,resources),done,'KC++ 撤下 MTP 实验入口')
+        self.device_job(lambda:rollback_mtp(manager,resources),done,'kc-ivy 撤下 MTP 实验入口')
 
     def install_device(self):
         try:
             from .install import install,FILES
-            resources=self.gui.iactions['KC++'].load_resources(['runtime/'+name for name in FILES])
+            resources=self.gui.iactions['kc-ivy'].load_resources(['runtime/'+name for name in FILES])
             from .install import VERSION
             from .mtp import is_mtp
             mtp=is_mtp(self.gui.device_manager)
@@ -607,7 +607,7 @@ class Pages:
                 else:
                     hint='首次使用或设备状态尚未初始化时，安全弹出后先运行「KC刷新收藏夹」；已有状态且任务已发送时，可直接运行「KC执行收藏夹任务」，无需重发。'
                 self.error('已安装 KC '+VERSION+'。'+hint+'入口备份：'+path)
-            self.device_job(lambda:install(self.gui.device_manager,resources),installed,'KC++ 安装配套 KC')
+            self.device_job(lambda:install(self.gui.device_manager,resources),installed,'kc-ivy 安装配套 KC')
         except Exception as e:self.error(e)
     def device_settings(self):
         try:
@@ -624,7 +624,7 @@ class Pages:
             task=build(self.snapshot,selected)
             from .mtp import execution_hint
             next_step=execution_hint(self.gui.device_manager)
-            self.device_job(lambda:send(connected_store(self.gui.device_manager,task['device']),task),lambda _:self.error('保护策略已发送；'+next_step),'KC++ 发送独立保护策略')
+            self.device_job(lambda:send(connected_store(self.gui.device_manager,task['device']),task),lambda _:self.error('保护策略已发送；'+next_step),'kc-ivy 发送独立保护策略')
         except Exception as e:self.error(e)
     def probe_device(self):
         try:
@@ -659,7 +659,7 @@ class Pages:
                     store.path('state/probe.json').rename(target)
                 atomic_write(store.path('state/probe.json'),dict(job_id=task['job_id']))
                 atomic_write(store.path('inbox/'+task['job_id']+'.json'),task)
-            self.device_job(work,lambda _:self.error('测试任务已准备；'+next_step),'KC++ 准备明确授权的真机测试')
+            self.device_job(work,lambda _:self.error('测试任务已准备；'+next_step),'kc-ivy 准备明确授权的真机测试')
         except Exception as e:self.error(e)
     def cancel_device_probe(self):
         from .probe import cancellable_probe,cancel_probe
@@ -667,8 +667,8 @@ class Pages:
             if QMessageBox.question(self,'撤销未执行的能力测试',
                     '测试编号：'+task['job_id']+'\n设备没有该测试的执行记录。撤销会归档请求和测试标记，随后可重新选择测试书。是否撤销？')!=QMessageBox.StandardButton.Yes:return
             self.device_job(lambda:cancel_probe(connected_store(self.gui.device_manager,task['device']),task),
-                lambda _:self.show_notice('未执行的能力测试已归档，可重新准备测试。','success'),'KC++ 撤销未执行的能力测试')
-        self.device_job(lambda:cancellable_probe(connected_store(self.gui.device_manager)),reviewed,'KC++ 核对能力测试记录')
+                lambda _:self.show_notice('未执行的能力测试已归档，可重新准备测试。','success'),'kc-ivy 撤销未执行的能力测试')
+        self.device_job(lambda:cancellable_probe(connected_store(self.gui.device_manager)),reviewed,'kc-ivy 核对能力测试记录')
     def selected_task(self,p,job_id):
         job=self.service.state.job(job_id)
         if not job or job['request']['library_uuid']!=p['library_uuid'] or job['request']['device']!=p['device']:
@@ -689,7 +689,7 @@ class Pages:
             if not task_actions(jobs[0])['retry']:raise Invalid('所选任务已收到执行结果，不能重新传输')
             from .mtp import execution_hint
             next_step=execution_hint(self.gui.device_manager)
-            self.device_job(lambda:self.service.retry(self.library_db.new_api,p['library_uuid'],connected_store(self.gui.device_manager,p['device']),jobs[0]),lambda _:self.error('原任务文件已核对，传输完成；'+next_step+'没有生成新任务 ID。'),'KC++ 重试原任务传输')
+            self.device_job(lambda:self.service.retry(self.library_db.new_api,p['library_uuid'],connected_store(self.gui.device_manager,p['device']),jobs[0]),lambda _:self.error('原任务文件已核对，传输完成；'+next_step+'没有生成新任务 ID。'),'kc-ivy 重试原任务传输')
         except Exception as e:self.error(e)
     def recover_task_draft(self,job_id=None):
         try:
@@ -712,7 +712,7 @@ class Pages:
                     snapshot,session=value;self.snapshot=snapshot;self.catalog=Catalog(snapshot);self.active=None;self.browse()
                     self.show_notice('已恢复迁移进度，请在迁移窗口重新预览剩余项。','success')
                     self.migration_center(session['id'])
-                self.device_job(lambda:MigrationService(self.service).recover(p['library_uuid'],connected_store(self.gui.device_manager,p['device']),job),recovered,'KC++ 恢复剩余迁移')
+                self.device_job(lambda:MigrationService(self.service).recover(p['library_uuid'],connected_store(self.gui.device_manager,p['device']),job),recovered,'kc-ivy 恢复剩余迁移')
                 return
             def done(value):
                 from .planner import Catalog
@@ -724,7 +724,7 @@ class Pages:
                 self.queue(selected)
                 if job['status']=='staged':self.service.state.close_staged(job['request']['job_id'])
                 self.persist_draft();self.error('已恢复所选操作为草稿，请重新预览；设备尚未修改。')
-            self.device_job(lambda:self.service.recover_draft(p['library_uuid'],connected_store(self.gui.device_manager,p['device']),job,close=False),done,'KC++ 核查并恢复原任务')
+            self.device_job(lambda:self.service.recover_draft(p['library_uuid'],connected_store(self.gui.device_manager,p['device']),job,close=False),done,'kc-ivy 核查并恢复原任务')
         except Exception as e:self.error(e)
     def cancel_unpublished(self,job_id=None):
         try:
@@ -733,7 +733,7 @@ class Pages:
             if len(jobs)!=1:raise Invalid('没有唯一的未确认发送任务')
             from .usability import task_actions
             if not task_actions(jobs[0])['cancel']:raise Invalid('此任务已发送或已有执行结果，不能按未发送任务取消')
-            self.device_job(lambda:self.service.cancel_unpublished(connected_store(self.gui.device_manager,p['device']),jobs[0]),lambda _:self.error('设备确认未发布，已取消本地任务；可重新预览。'),'KC++ 核对并取消未发送任务')
+            self.device_job(lambda:self.service.cancel_unpublished(connected_store(self.gui.device_manager,p['device']),jobs[0]),lambda _:self.error('设备确认未发布，已取消本地任务；可重新预览。'),'kc-ivy 核对并取消未发送任务')
         except Exception as e:self.error(e)
     def first_run_guide(self):
         from .task_ui import first_use_dialog

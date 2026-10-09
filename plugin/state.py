@@ -1,4 +1,4 @@
-"""KC++ private transactional journal. Never opens a Calibre/Kindle database."""
+"""kc-ivy private transactional journal. Never opens a Calibre/Kindle database."""
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path

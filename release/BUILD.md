@@ -8,7 +8,7 @@
 calibre-debug -e build.py
 ```
 
-输出dist/KC++_<版本>.zip和build-<版本>.json（版本取自plugin/__init__.py）。ZIP条目时间固定，相同输入得到相同摘要；build清单不表示真机认证。
+输出dist/kc-ivy_<版本>.zip和build-<版本>.json（版本取自plugin/__init__.py）。ZIP条目时间固定，相同输入得到相同摘要；build清单不表示真机认证。
 
 ## 屏幕卡片辅助程序
 

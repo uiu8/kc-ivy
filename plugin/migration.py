@@ -171,7 +171,7 @@ class MigrationService:
                 if (confirmed&changes)-self.state.baseline_done(j['job_id']):raise Invalid('请先回填已确认的任务结果，再继续迁移')
         p=self.service.profile(library,snapshot)
         from .usability import uses_column
-        if p.get('sync_mode')=='column' and not p['field']:raise Invalid('请先在同步设置选择书架列，或明确切换纯 KC++ 模式')
+        if p.get('sync_mode')=='column' and not p['field']:raise Invalid('请先在同步设置选择书架列，或明确切换纯 kc-ivy 模式')
         m=read_metadata(api,[p['field']] if uses_column(p) else [])
         if uses_column(p):
             assert_library(snapshot,library,m)

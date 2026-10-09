@@ -35,7 +35,7 @@ def put(z,name,data):
     info=ZipInfo(name,(2026,10,7,0,0,0));info.compress_type=ZIP_DEFLATED
     info.external_attr=0o100644<<16;z.writestr(info,data)
 
-plugin=out/('KC++_'+VERSION+'.zip')
+plugin=out/('kc-ivy_'+VERSION+'.zip')
 with ZipFile(plugin,'w',ZIP_DEFLATED) as z:
     for path in sorted((ROOT/'plugin').iterdir()):
         if path.suffix not in ('.py','.txt'): continue
