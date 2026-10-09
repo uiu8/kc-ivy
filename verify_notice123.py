@@ -38,7 +38,7 @@ class Notice(unittest.TestCase):
             table.selectRow(row);app.processEvents()
             self.assertIn(table.item(row,0).text(),detail.toPlainText())
             if table.item(row,1).text()=='AZW':self.assertIn('如果只是用它查词',detail.toPlainText())
-            else:self.assertIn('可以先在 KC++ 加入收藏夹',detail.toPlainText())
+            else:self.assertIn('可以先在 kc-ivy 加入收藏夹',detail.toPlainText())
         d.findChild(QPushButton,'file_path_toggle').click();app.processEvents()
         self.assertTrue(d.findChild(QLabel,'file_path').isVisible())
         d.grab().save(str(out/'pending-files.png'))

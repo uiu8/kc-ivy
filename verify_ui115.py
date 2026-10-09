@@ -83,7 +83,7 @@ class Settings(unittest.TestCase):
         self.dialog(manual)
         persisted=Service(self.root/'state').profile(str(self.db.library_id),self.s)
         self.assertEqual(persisted['sync_mode'],'manual');self.assertEqual(persisted['field'],'#myshelves')
-        self.assertEqual(self.host.mode_summary.text(),'仅 KC++ 整理')
+        self.assertEqual(self.host.mode_summary.text(),'仅 kc-ivy 整理')
         def reopened(d):self.assertEqual(d.findChild(QComboBox,'sync_mode').currentData(),'manual')
         self.dialog(reopened)
 
