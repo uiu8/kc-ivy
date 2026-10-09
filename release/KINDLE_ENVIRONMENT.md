@@ -1,6 +1,6 @@
 # Kindle 运行环境与理论支持范围
 
-本报告对应 kc-ivy 1.0.25 / Kindle 端 KC 0.6.15。它把“已经在本项目设备上跑过”和“根据公开型号、固件与运行条件推测可以适配”分开记录。理论支持不等于实测支持，也不建议为了进入某个区间而升级或降级固件。
+本报告对应 kc-ivy 1.0.26 / Kindle 端 KC 0.6.15。它把“已经在本项目设备上跑过”和“根据公开型号、固件与运行条件推测可以适配”分开记录。理论支持不等于实测支持，也不建议为了进入某个区间而升级或降级固件。
 
 ## 先看结论
 
@@ -83,7 +83,7 @@ kc-ivy 不依赖旧 Kindle Collections 插件生成日常 JSON；旧 JSON 只用
 | ARM 静态检查构建清单 | 当前辅助程序目标为 `arm-linux-musleabihf / cortex_a8` | `native/check-build.json`、`release/BUILD.md` |
 | 设备端入口和执行脚本 | 本地接口、备份、回读核验和任务回执链路 | `device/run.sh`、`device/refresh.sh`、`device/export.sql` |
 | MTP 适配代码和独立入口 | 可以实验性尝试传输，但没有 KPW6/2024 真机结论 | `plugin/mtp.py`、`release/MTP新书实验说明.md` |
-| 自动化测试 | 验证 Qt 界面、模拟设备、临时 Calibre 库和发布包一致性 | `dist/release-1.0.25/source-check.json` 及本次发布校验日志 |
+| 自动化测试 | 验证 Qt 界面、模拟设备、临时 Calibre 库和发布包一致性 | `dist/release-1.0.26/source-check.json` 及本次发布校验日志 |
 
 ## 发布时应如何表述
 

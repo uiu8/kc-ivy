@@ -120,6 +120,5 @@ def first_use_dialog(host):
         button=QPushButton(button_text);button.setFixedWidth(142);button.setToolTip(text);button.clicked.connect(lambda checked=False,slot=fn:(d.accept(),slot()));row.addWidget(button);cards.addWidget(card)
     cards.addStretch()
     flow=QLabel('日常流程  整理 → 预览 → 发送 → 安全弹出并在 Kindle 执行 → 重连读取结果');flow.setWordWrap(True);flow.setObjectName('status');layout.addWidget(flow)
-    note=QLabel('发送不等于执行成功。无需安装旧 Kindle Collections，也无需手动复制 JSON。');note.setWordWrap(True);layout.addWidget(note)
     footer=QHBoxLayout();footer.addStretch();close=QPushButton('知道了');close.clicked.connect(d.reject);footer.addWidget(close);layout.addLayout(footer)
     return d
