@@ -1,18 +1,18 @@
-# kc-ivy-kpw3 1.0.0
+# kc-ivy-kpw3 1.0.1
 
 Calibre 中整理 Kindle 收藏夹，预览后发送到 Kindle 执行，再读取结果并回填 Calibre 列。支持多归属、新建、改名、加入、移动、移除、删除收藏夹；这些操作保留书籍文件。
 
-这是与主线 kc-ivy 分开的 KPW3 soft-float 完整版本，插件版本 1.0.0，配套 KC 0.7.0。目标是 KPW3 / 5.16.2.1.1（4097470002）。项目没有真实 KPW3 设备，首次使用仍必须完成环境检查和六步能力验证；正式版 1.0.28、旧标签和旧附件不受本版本影响。项目代码采用 MIT。详见 [KPW3 使用说明](release/SOFTFLOAT.md)。
+这是与主线 kc-ivy 分开的 KPW3 soft-float 完整版本，插件版本 1.0.1，配套 KC 0.7.0。目标是 KPW3 / 5.16.2.1.1（4097470002）。项目没有真实 KPW3 设备，首次使用仍必须完成环境检查和六步能力验证；正式版 1.0.28、旧标签和旧附件不受本版本影响。项目代码采用 MIT。详见 [KPW3 使用说明](release/SOFTFLOAT.md)。
 
-交付文件为 `kc-ivy-kpw3_1.0.0.zip` 与 `kc-ivy-kpw3_1.0.0_source.zip`。此包与主线共用 Calibre 插件标识、设置和设备 kc-sync 数据目录，属于替换安装，不能同时安装两个版本。KUAL 菜单目录为 extensions/kc-ivy-kpw3。
+交付文件为 `kc-ivy-kpw3_1.0.1.zip` 与 `kc-ivy-kpw3_1.0.1_source.zip`。此包与主线共用 Calibre 插件标识、设置和设备 kc-sync 数据目录，属于替换安装，不能同时安装两个版本。KUAL 菜单目录为 extensions/kc-ivy-kpw3。
 <img width="2164" height="1397" alt="Clipboard 2026-10-09T06-13-02Z" src="https://github.com/user-attachments/assets/a9212ef0-e627-4b54-893d-f70c2033d7fa" />
 
 ## 安装
 
-1. Kindle 必须已经越狱，并具备能运行 documents 下 .sh 文件的脚本启动器。项目历史使用 KMC/KPM 的 KC 入口；该启动环境不由本包安装。原 Kindle Collections 不需要安装。没有可用启动器时先停止，不会自动执行 .sh。
-2. Calibre → 首选项 → 插件 → 从文件加载插件，选择 `kc-ivy-kpw3_1.0.0.zip`，重启 Calibre。
+1. Kindle 必须已经越狱，并具备能运行 documents 下 .sh 文件的脚本启动器或 KUAL。项目历史使用 KMC/KPM 的 KC 入口；该启动环境不由本包安装。原 Kindle Collections 不需要安装。没有可用启动器时先停止，不会自动执行 .sh。
+2. Calibre → 首选项 → 插件 → 从文件加载插件，选择 `kc-ivy-kpw3_1.0.1.zip`，重启 Calibre。
 3. 连接 Kindle，确认是 USB 磁盘模式。kc-ivy-kpw3 → 设备维护 → 安装/升级配套 KC；本版本不通过 MTP 安装。
-4. 安全弹出，在 Kindle 运行“KC检查运行环境”，确认报告为 `ENVIRONMENT_PASS=1`；再运行“KC刷新收藏夹”并重连。
+4. 安全弹出并断开 USB，在 Kindle 运行“KC检查运行环境”（或使用 KUAL 的 KC ivy KPW3 菜单）。重连打开 kc-sync/logs 中最新环境报告；ENVIRONMENT_PASS=1 后，再弹出运行“KC刷新收藏夹”，完成后重连读取。
 5. 在电脑端选择“准备能力测试”，选定一本已索引的书并确认；安全弹出后在 Kindle 运行“KC验证编辑能力”，重连读取六步结果。测试失败、接口不兼容或报告不是通过时，不执行普通任务；把 `kc-sync/logs` 中的脱敏报告交给维护者。
 6. 默认使用Calibre列与kc-ivy共同整理。在Calibre添加“逗号分隔、像标签一样”的多值文本列，查找名称和标题均可自定（例如 bookshelves / 我的书架），也可直接使用已有的多值文本列；重启后在同步设置选择它。审阅并导入Kindle现有归属。已有列值不要盲目覆盖；也可切换为纯kc-ivy手动整理。
 
@@ -28,7 +28,7 @@ Calibre 中整理 Kindle 收藏夹，预览后发送到 Kindle 执行，再读�
 
 USB 磁盘模式下，传书完成后点击“读取设备状态”，可发现 documents 下尚未进入快照的受支持文件，包括其他工具复制的书。可先整理，无需提前弹出刷新再重连；实际执行仍须安全弹出后运行 Kindle 任务，并通过原生索引和文件指纹核验。未索引 EPUB 不列入候选，不支持 KOReader 收藏。详见 [新书工作流](release/NEW_BOOKS.md)。
 
-## 分支说明
+## 运行方式
 
 本版本继续使用“只读 `cc.db` → 本地 `/change` 服务提交 → 回读核验”的安全链路，不直接写数据库。备用 SQLite 只解决旧固件用户空间缺少 JSON1/readfile 或系统 sqlite3 不可用的问题；它不能补出旧固件不存在的 `/change` 服务、认证令牌、数据库字段或启动器。
 
@@ -38,7 +38,7 @@ USB 磁盘模式下，传书完成后点击“读取设备状态”，可发现 
 
 自 1.0.26 起补齐新书身份衔接、失效绑定修复、扫描取消与进度、分享导出范围确认；连接设备但未打开 kc-ivy 时不再弹出读取进度窗口。预览可查看设备副本路径并进入范围选择；提示详情区分文件发现与原生编号核验，任务入口保留待处理计数。详见 [使用边界与恢复](release/RELIABILITY.md)。
 
-- **Kindle 屏幕进度**：KC 0.6.13 尝试通过系统 eips 显示居中大字卡片，包含中文阶段、操作序号和结果，三秒节流；不可用时继续执行并写日志。尚未真机验收，详见 [屏幕提示说明](release/SCREEN_PROGRESS.md)。
+- **Kindle 屏幕进度**：KC 0.7.0 尝试通过系统 eips 显示居中大字卡片，包含中文阶段、操作序号和结果，三秒节流；不可用时继续执行并写日志。尚未真机验收，详见 [屏幕提示说明](release/SCREEN_PROGRESS.md)。
 
 - **MTP**：此旧固件版本不提供 MTP 安装；使用 USB 磁盘连接。
 - **迁移与分享** 可选用，尚未完成两台真机迁移及大包验收。备份只含收藏关系；分享包含选中书籍文件及归属。默认导入独立书库，不自动覆盖同名书。
@@ -46,7 +46,7 @@ USB 磁盘模式下，传书完成后点击“读取设备状态”，可发现 
 
 ## 升级与回退
 
-覆盖安装新kc-ivy并重启，不删除原设置。保留使用同一插件标识，草稿/任务/书库状态延续。普通USB升级KC先备份启动入口；“恢复设备启动入口”可恢复，1.0支持回退中断后继续并拒绝覆盖被用户改动的入口。MTP使用“撤下实验入口并关闭MTP”。入口回退不会撤销已经执行的收藏夹修改，也不将MTP设备转换成磁盘模式。
+覆盖安装 kc-ivy-kpw3 并重启，不删除原设置。已有相同 KC 0.7.0 且设备、固件和能力验证未变化时，单独升级电脑插件无需重装设备端或重复验证。保留使用同一插件标识，草稿/任务/书库状态延续。普通USB升级KC先备份启动入口；“恢复设备启动入口”可恢复，1.0支持回退中断后继续并拒绝覆盖被用户改动的入口。本版本仅使用 USB 磁盘。入口回退不会撤销已经执行的收藏夹修改，也不将MTP设备转换成磁盘模式。
 
 详见 [SUPPORT.md](release/SUPPORT.md)、[KINDLE_ENVIRONMENT.md](release/KINDLE_ENVIRONMENT.md)、[CHANGELOG.md](release/CHANGELOG.md)、[BUILD.md](release/BUILD.md)、[THIRD_PARTY.md](release/THIRD_PARTY.md)。不要将个人诊断、书库或设备快照随源码公开。
 

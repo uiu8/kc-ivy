@@ -21,8 +21,8 @@ LIMIT = 64 * 1024 * 1024
 
 
 def enabled():
-    from calibre.utils.config import JSONConfig
-    return bool(JSONConfig('plugins/kc-plus-transport').get(PREFERENCE, False))
+    # The KPW3 distribution must not inherit mainline's saved MTP opt-in.
+    return False
 
 
 def is_mtp(manager):

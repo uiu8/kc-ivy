@@ -1,7 +1,7 @@
 import unittest
 from types import SimpleNamespace
 from calibre.gui2 import Application
-from qt.core import QWidget,QPushButton,QFontDatabase
+from qt.core import QWidget,QPushButton,QFontDatabase,QLabel
 from plugin.task_ui import TaskHistoryDialog,first_use_dialog,operation_rows
 app=Application([])
 for p in ['C:/Windows/Fonts/msyh.ttc','C:/Windows/Fonts/simsun.ttc']:QFontDatabase.addApplicationFont(p)
@@ -10,7 +10,7 @@ class Screens(unittest.TestCase):
   self.calls=[];self.host=QWidget();self.host.busy=False;self.host.intents=[]
   state=SimpleNamespace(column_pending=lambda jid:False,baseline_done=lambda jid:[])
   self.host.service=SimpleNamespace(state=state)
-  for name in ['check_task','recover_task_draft','retry_task','cancel_unpublished','install_device','load','probe_device','configure_rules','import_column']:
+  for name in ['check_task','recover_task_draft','retry_task','cancel_unpublished','install_device','mtp_settings','load','probe_device','configure_rules','import_column']:
    setattr(self.host,name,lambda *args,n=name:self.calls.append((n,args)))
   self.addCleanup(self.host.close)
  def job(self,jid,confirmed=False):
@@ -28,7 +28,7 @@ class Screens(unittest.TestCase):
   d.grab().save('dist/task-history-1.0.10.png');d.close()
   d=TaskHistoryDialog(self.host,[]);self.assertTrue(all(not b.isEnabled() for b in d.buttons.values()));d.close()
  def test_guide_callbacks(self):
-  d=first_use_dialog(self.host);d.show();app.processEvents();d.grab().save('dist/first-use-1.0.10.png')
+  d=first_use_dialog(self.host);d.show();app.processEvents();d.grab().save('dist/first-use-kpw3.png');self.assertIn('ENVIRONMENT_PASS=1',' '.join(x.text() for x in d.findChildren(QLabel)));self.assertIn('kc-ivy-kpw3',d.windowTitle())
   next(b for b in d.findChildren(QPushButton) if b.text()=='同步设置').click();self.assertEqual(self.calls,[('configure_rules',())]);d.close()
 if __name__=='__main__':
  suite=unittest.TestLoader().loadTestsFromTestCase(Screens)

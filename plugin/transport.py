@@ -173,7 +173,7 @@ def connected_store(manager, expected_device=None):
     from .mtp import is_mtp, enabled, MTPStore
     if is_mtp(manager):
         if not enabled():
-            raise Invalid('检测到 MTP 设备。请在「设备维护 → 实验性 MTP 传输」明确开启；尚无 KPW6 真机验证。')
+            raise Invalid('检测到 MTP 设备。kc-ivy-kpw3 只支持 USB 磁盘连接；请核对型号并使用适合该设备的版本。未发送任务，现有文件保留。')
         return MTPStore(manager, expected_device)
     from .mounts import resolve_mount
     return DeviceStore(resolve_mount(manager), expected_device)

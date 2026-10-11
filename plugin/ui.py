@@ -190,7 +190,7 @@ class KCPlusAction(InterfaceAction):
         entries=[('新建收藏夹','create_collection'),('预览修改','calculate_preview'),
             ('书架与同步设置','configure_rules'),('查看设备报告','show_device_report'),('整理收藏夹','show_collections'),
             ('把 Kindle 书架导入 Calibre 列','import_column'),('恢复 Calibre 列备份','restore_column'),
-            ('首次使用','first_run_guide'),('关于 kc-ivy','about')]
+            ('首次使用','first_run_guide'),('关于 kc-ivy-kpw3','about')]
         for label,method in entries:
             action=menu.addAction(label)
             def invoke(checked=False,name=method):
@@ -366,12 +366,12 @@ class Manager(QDialog, Pages):
             ('列值导入与回填', [('Kindle 收藏归属导入指定列',self.import_column),('回填已确认的执行结果',self.backfill_result),('校准已有书架的初始状态',self.calibrate_baseline),('从列备份恢复',self.restore_column)]),
             ('备份、迁移与分享', [('书架备份与新机迁移 / 书库分享',self.migration_center)]),
             ('旧插件迁移与其他导入', [('读取设备旧收藏文件',self.import_legacy),('导入旧 collection(s).json / .full',self.import_external_legacy),('导入原 Kindle Collections 配置',self.migrate_settings),('导入为单值文本 / 长文本 / 布尔摘要',self.import_summary)]),
-            ('设备安装与维护', [('安装 / 升级配套 KC',self.install_device),('实验性 MTP 传输',self.mtp_settings),('准备真机编辑能力测试',self.probe_device),('撤销未执行的能力测试',self.cancel_device_probe),('恢复未完成快照',self.recover_snapshot),('恢复设备启动入口',self.rollback_device),('设备版本管理',self.runtime_manager),('空间占用与安全清理',self.storage_manager)]),
-            ('帮助', [('首次使用',self.first_run_guide),('关于 kc-ivy',self.about)])]
+            ('设备安装与维护', [('安装 / 升级配套 KC',self.install_device),('连接与启动说明',self.mtp_settings),('准备真机编辑能力测试',self.probe_device),('撤销未执行的能力测试',self.cancel_device_probe),('恢复未完成快照',self.recover_snapshot),('恢复设备启动入口',self.rollback_device),('设备版本管理',self.runtime_manager),('空间占用与安全清理',self.storage_manager)]),
+            ('帮助', [('首次使用',self.first_run_guide),('关于 kc-ivy-kpw3',self.about)])]
         self.column_only_buttons=[]
         for title,actions in sections:
             group=QGroupBox(title);grid=QGridLayout(group)
-            explanations={'日常设置':'日常：选择哪一列管理收藏夹；加入保留其他归属，移动会退出原收藏夹。','列值导入与回填':'首次导入：把 Kindle 归属写入列。校准：只记录当前列与设备为起点，不修改二者。回填：处理已确认的执行结果。','旧插件迁移与其他导入':'仅迁移旧配置时使用，日常同步无需手动复制 JSON。','设备安装与维护':'首次安装或故障时使用；正常使用无需反复运行能力测试。','帮助':'日常顺序：整理 → 预览 → 发送 → Kindle 执行 → 重连接收结果。'}
+            explanations={'日常设置':'日常：选择哪一列管理收藏夹；加入保留其他归属，移动会退出原收藏夹。','列值导入与回填':'首次导入：把 Kindle 归属写入列。校准：只记录当前列与设备为起点，不修改二者。回填：处理已确认的执行结果。','旧插件迁移与其他导入':'仅迁移旧配置时使用，日常同步无需手动复制 JSON。','设备安装与维护':'从主线转入时先安装 KC 0.7.0、诊断、刷新及验证；仅升级电脑插件无需重复安装设备端。','帮助':'日常顺序：整理 → 预览 → 发送 → Kindle 执行 → 重连接收结果。'}
             hint=QLabel(explanations.get(title,'备份收藏夹，或把选中的电子书和分类一起分享；接收后可独立建库。'));hint.setWordWrap(True);grid.addWidget(hint,0,0,1,2)
             for i,(text,slot) in enumerate(actions):
                 button=QPushButton(text);button.clicked.connect(slot);grid.addWidget(button,1+i//2,i%2)

@@ -102,16 +102,17 @@ class TaskHistoryDialog(InkDialog):
 
 
 def first_use_dialog(host):
-    d,layout=base(host,'开始使用 kc-ivy','首次准备完成后，日常只需整理、预览和发送；本页可随时关闭。')
+    d,layout=base(host,'开始使用 kc-ivy-kpw3','首次准备完成后，日常只需整理、预览和发送；本页可随时关闭。')
     d.resize(850,730)
     scroll=QScrollArea();scroll.setWidgetResizable(True);layout.addWidget(scroll,1)
     content=QWidget();cards=QVBoxLayout(content);cards.setContentsMargins(0,0,8,0);cards.setSpacing(10);scroll.setWidget(content)
     steps=[
-        ('01','安装配套 KC','连接受支持的越狱 Kindle，等待 Calibre 识别后安装。已有用户无需重复安装。','安装配套 KC',host.install_device),
-        ('02','读取现有收藏夹','安全弹出 → 在 Kindle 运行“KC刷新收藏夹” → 重连电脑，再点击读取。此步骤不修改收藏夹。','读取设备状态',host.load),
-        ('03','验证编辑能力','准备测试后安全弹出，在 Kindle 运行“KC验证编辑能力”，重连读取结果。首次使用或固件变更后需要验证。','准备能力测试',host.probe_device),
-        ('04','选择整理方式','专用书架列（推荐）：选择已有列或直接新建，名称不限。也可使用原生标签，或仅在 kc-ivy 整理而不使用列。','同步设置',host.configure_rules),
-        ('可选','把现有收藏关系导入列','使用列同步时，可先预览再导入 Kindle 现有归属。已有列值请先核对，避免覆盖自己的整理结果。','预览归属导入',host.import_column)]
+        ('01','安装配套 KC 0.7.0','通过 USB 磁盘连接已越狱的 KPW3。从主线或旧 KC 转入必须安装本包配套运行文件；仅升级电脑插件且已使用相同 KC 0.7.0 时无需重装。','安装配套 KC',host.install_device),
+        ('02','检查 Kindle 运行环境','安全弹出并断开 USB，在 Kindle 运行“KC检查运行环境”，或从 KUAL 的 KC ivy KPW3 菜单启动。重连后打开 kc-sync/logs 中最新环境报告；ENVIRONMENT_PASS=1 才继续，失败时保留报告并反馈。','连接与启动说明',host.mtp_settings),
+        ('03','刷新并读取收藏夹','安全弹出，在 Kindle 运行“KC刷新收藏夹”；完成后重连并读取。电脑“读取设备状态”读取已有快照，不会替 Kindle 重新生成索引。','读取设备状态',host.load),
+        ('04','准备并完成六步验证','在电脑选择一本已索引书籍并准备能力测试，弹出后运行“KC验证编辑能力”，重连读取回执。六步全部确认后才开始日常任务；失败时先处理原任务。仅升级电脑插件不要求重复验证。','准备能力测试',host.probe_device),
+        ('05','选择整理方式','可选专用书架列、原生标签或仅在插件手动整理；列名可自定。已有列值和收藏归属先审阅，再决定是否导入。','同步设置',host.configure_rules),
+        ('可选','把现有收藏关系导入列','先预览再确认导入，避免覆盖已有列值。设备独有书籍可直接手动整理，需要列同步时再明确绑定或创建仅元数据记录。','预览归属导入',host.import_column)]
     for number,title,text,button_text,fn in steps:
         card=QFrame();card.setStyleSheet('QFrame {background:#fbf9f3; border:1px solid #d7d0c3; border-radius:7px;} QLabel {border:0; background:transparent;}');row=QHBoxLayout(card);row.setContentsMargins(16,12,16,12)
         badge=QLabel(number);badge.setFixedWidth(42);badge.setStyleSheet('color:#a34838; font-size:19px;');row.addWidget(badge)

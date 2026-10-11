@@ -154,17 +154,17 @@ class Pages:
     def about(self):
         from . import KCPlus
         from .install import VERSION
-        QMessageBox.information(self,'关于 kc-ivy-kpw3','kc-ivy-kpw3 '+'.'.join(map(str,KCPlus.version))+' / KC '+VERSION+'\n面向 KPW3 5.16.2.1.1 soft-float 固件的完整 USB 版本；不支持 MTP 安装。\n首次安装或升级后必须先检查环境、刷新，再完成六步能力验证。设备兼容性以实际回执为准。\n收藏夹修改维持 /change 接口，需预览、设备执行和确认。')
+        QMessageBox.information(self,'关于 kc-ivy-kpw3','kc-ivy-kpw3 '+'.'.join(map(str,KCPlus.version))+' / KC '+VERSION+'\n面向 KPW3 5.16.2.1.1 soft-float 固件的完整 USB 版本；不支持 MTP 安装。\n从主线或旧 KC 转入时，先检查环境、刷新，再完成六步能力验证。仅升级电脑插件且 KC 0.7.0、设备和固件未变化时，不必重复安装或验证。\n收藏夹修改维持 /change 接口，需预览、设备执行和确认。')
     def rollback_device(self):
         try:
             from .mtp import is_mtp
-            if is_mtp(self.gui.device_manager):return self.rollback_mtp_device()
+            if is_mtp(self.gui.device_manager):raise Invalid('此版本仅支持 USB 磁盘回退；MTP 设备请使用原版本处理，现有任务和入口保留。')
             from .install import rollback
             store=connected_store(self.gui.device_manager)
             backups=sorted(store.path('upgrades').glob('*/manifest.json'))
             if not backups:raise Invalid('没有入口备份')
             labels=[p.parent.name for p in backups]
-            label,ok=QInputDialog.getItem(self,'恢复设备入口','保留 KC 数据。回退后旧追加同步可能再次加入旧输入的归属，请勿继续运行旧输入。',labels,len(labels)-1,False)
+            label,ok=QInputDialog.getItem(self,'恢复设备入口','选择安装时的入口备份。恢复脚本和 KUAL 菜单，不撤销已执行的收藏修改，也不删除书籍、任务或回执。待确认任务请先核验；不要继续运行旧版遗留输入。',labels,len(labels)-1,False)
             if not ok:return
             self.device_job(lambda:rollback(self.gui.device_manager,backups[labels.index(label)].parent),lambda n:self.error(f'已恢复 {n} 个入口；设备数据保留。'),'kc-ivy 回退启动入口')
         except Exception as e:self.error(e)
@@ -535,44 +535,13 @@ class Pages:
             self.service.state.save(self.service.key(p['library_uuid'],self.snapshot),p,p['revision']);self.preview=None;self.error('已迁移；请审阅规则再预览。')
         except Exception as e:self.error(e)
     def mtp_settings(self):
-        from calibre.utils.config import JSONConfig
-        from .mtp import PREFERENCE,can_enable
-        settings=JSONConfig('plugins/kc-plus-transport')
-        dialog=QDialog(self);dialog.setWindowTitle('实验性 MTP 传输');layout=QVBoxLayout(dialog)
-        option=QCheckBox('启用实验性 MTP（KPW6 / 2024 款 / Scribe 等）')
-        option.setChecked(bool(settings.get(PREFERENCE,False)));layout.addWidget(option)
-        if not can_enable(self.gui.device_manager) and not option.isChecked():option.setEnabled(False)
-        note=QLabel('尚无 KPW6 真机验证。开启仅允许尝试传输，不表示设备已具备编辑能力。\n'
-            '只有连接到 MTP Kindle 才能开启；开关不会安装文件，也不会改变普通 USB 设备的传输方式。\n'
-            '当前 kc-ivy-kpw3 仅支持 USB 磁盘安装，不能通过此开关启用 MTP 安装。\n'
-            '通用 MTP 功能用于既有兼容运行环境：读取快照与回执、发送和重试任务、能力测试及保护策略。\n'
-            'KC 0.7.0 的设备端流程要求 USB 磁盘；本版本安装不走 MTP。\n'
-            '首次发现和发送前需读取新书文件校验，大文件会增加等待时间。\n'
-            '可以撤下已核验的实验入口；自动清理暂未开放。关闭开关不会撤销已发送任务。\n'
-            '断线后使用任务记录中的「核对 / 重试原任务」，不要另建重复任务。')
-        note.setWordWrap(True);layout.addWidget(note)
-        retry=QPushButton('核对 / 继续上一次 MTP 传输（含能力测试）');layout.addWidget(retry)
-        retry.setEnabled(bool(settings.get(PREFERENCE,False)))
-        def resume():
-            dialog.accept()
-            def work():
-                store=connected_store(self.gui.device_manager)
-                if not getattr(store,'experimental_mtp',False):raise Invalid('当前连接不是已启用的实验性 MTP')
-                return store.retry_transfer()
-            self.device_job(work,self.error,'kc-ivy 核对原 MTP 传输')
-        retry.clicked.connect(resume)
-        withdraw=QPushButton('撤下实验入口并关闭 MTP');layout.addWidget(withdraw)
-        withdraw.setEnabled(can_enable(self.gui.device_manager))
-        def remove_entries():
-            dialog.reject();self.rollback_mtp_device()
-        withdraw.clicked.connect(remove_entries)
-        buttons=QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-        buttons.accepted.connect(dialog.accept);buttons.rejected.connect(dialog.reject);layout.addWidget(buttons)
-        if dialog.exec():
-            if option.isChecked() and not bool(settings.get(PREFERENCE,False)) and not can_enable(self.gui.device_manager):
-                self.error('请先连接 Calibre 已识别的 MTP Kindle，才能开启实验功能。');return
-            settings[PREFERENCE]=option.isChecked()
-            self.error('MTP 已开启，但 kc-ivy-kpw3 安装仍只支持 USB 磁盘。' if option.isChecked() else 'MTP 已关闭；设备文件保留。')
+        QMessageBox.information(self,'连接与启动说明 · kc-ivy-kpw3',
+            '本版本使用 USB 磁盘连接，不支持 MTP。若 Calibre 识别为 MTP，请核对设备型号并使用适合该设备的版本；本页不会改变设备连接模式。\n\n'
+            'Kindle 须已越狱，并已有可运行 .sh 的启动器或 KUAL。本包不会安装越狱或第三方启动环境。\n'
+            '安装配套 KC 后，安全弹出并断开 USB，再在 Kindle 运行入口。使用 KUAL 时，打开 KC ivy KPW3 菜单；若 .sh 被当作文本打开，请使用已安装的 KUAL 或先修复启动环境。\n\n'
+            '首次顺序：检查运行环境 → 刷新收藏夹 → 重连读取状态 → 电脑准备能力测试 → 弹出后验证编辑能力 → 重连读取结果。\n'
+            '检查报告保存在 Kindle 的 kc-sync/logs/KC环境检查-*.txt。重连后打开最新报告；ENVIRONMENT_PASS=1 才继续。失败时保留报告并反馈，勿发送普通任务。\n'
+            '环境检查通过只说明运行条件满足，编辑能力仍需六步回执确认。')
 
     def rollback_mtp_device(self):
         from .mtp import rollback_mtp,PREFERENCE
@@ -596,8 +565,8 @@ class Pages:
             if is_mtp(self.gui.device_manager):raise Invalid('KC ivy KPW3 仅支持 USB 磁盘安装，不支持 MTP；未写入设备')
             resources=self.gui.iactions['kc-ivy'].load_resources(['runtime/'+name for name in FILES])
             from .install import VERSION
-            detail='安装 KC ivy KPW3 的 USB 运行文件、四个文档入口及 KUAL 菜单，并备份入口，可从“恢复设备启动入口”回退。'
-            hint='安全弹出并断开 USB 后，先运行「KC检查运行环境」，诊断通过后运行「KC刷新收藏夹」。重连读取新状态，在插件准备六步能力测试，再弹出运行「KC验证编辑能力」。重连确认六步全部通过后，才可预览并执行业务任务；已有旧状态也必须完成这些步骤。'
+            detail='安装 KC 0.7.0 的 14 个运行文件、四个脚本入口和 KUAL 菜单。Kindle 必须已有脚本启动器或 KUAL；本操作不会安装它们。入口备份可用于回退，书籍、草稿、任务和回执保留。'
+            hint='安全弹出并断开 USB 后，先运行「KC检查运行环境」，诊断通过后运行「KC刷新收藏夹」。重连读取新状态，在插件准备六步能力测试，再弹出运行「KC验证编辑能力」。重连确认六步全部通过后，才可预览并执行业务任务；从主线或旧 KC 转入时，即使已有快照，也须完成上述步骤。若只是重装相同 KC 0.7.0 且设备、固件和验证状态未变化，无须重复验证。'
             if QMessageBox.question(self,'安装 KC ivy KPW3','安装 KC '+VERSION+' 运行文件。'+detail+'\n'+hint+'\n是否安装？')!=QMessageBox.StandardButton.Yes:return
             def installed(path):
                 self.error('已安装 KC ivy KPW3 '+VERSION+'。'+hint+'入口备份：'+path)

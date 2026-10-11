@@ -141,6 +141,13 @@ class MTP(unittest.TestCase):
         stage=self.mount/'kc-sync/mtp-inbox'
         self.assertEqual((stage/(req['job_id']+'.json')).read_bytes(),canonical(req))
 
+    def test_kpw3_ignores_saved_mainline_mtp_setting(self):
+        from plugin.mtp import enabled
+        with patch('calibre.utils.config.JSONConfig',return_value={'experimental_mtp':True}):
+            self.assertFalse(enabled())
+            with self.assertRaisesRegex(Invalid,'USB'):
+                connected_store(self.manager)
+
     def test_opt_in_and_other_device_rejected(self):
         with patch('plugin.mtp.enabled',return_value=False),self.assertRaises(Invalid):connected_store(self.manager)
         self.driver.is_kindle=False
