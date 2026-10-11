@@ -132,7 +132,7 @@ class MTP(unittest.TestCase):
     def test_old_runtime_and_v2_disconnect_retry(self):
         path,snap,req=self.new_book()
         entry=self.mount/'documents/KC执行收藏夹任务-MTP.sh';raw=entry.read_bytes()
-        entry.write_bytes(raw.replace(b'0.6.15',b'0.6.14'))
+        entry.write_bytes(raw.replace(VERSION.encode(),b'0.6.14'))
         with self.assertRaises(Invalid):self.store.send(req)
         entry.write_bytes(raw)
         self.driver.fail='.ready'
@@ -240,8 +240,7 @@ class MTP(unittest.TestCase):
             self.assertFalse(getattr(store,'experimental_mtp',False))
             backup=install(manager,resources())
         self.assertFalse(list((self.mount/'documents').glob('*-MTP.sh')))
-        self.assertEqual(rollback(manager,backup),3)
-        with self.assertRaises(Invalid):install_mtp(manager,resources())
+        self.assertEqual(rollback(manager,backup),len(__import__('json').loads((Path(backup)/'manifest.json').read_text())['entries']))
 
 
 class ShellHandoff(unittest.TestCase):

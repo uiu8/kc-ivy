@@ -1,14 +1,37 @@
 """Versioned KC deployment. Only known KC entrypoints are replaced, with backups."""
 import os
 import re
+import json
 from pathlib import Path
 from uuid import uuid4
 from .protocol import Invalid,canonical,digest
 from .transport import atomic_write
 from .mounts import resolve_mount,kc_package
 
-VERSION='0.6.15'
-FILES=('run.sh','refresh.sh','policy.sh','export.sql','prepare-edit.sql','verify-edit.sql','validate-request.sql','backup-check.sh','kc-backup-check','mtp.sh','kc-screen')
+VERSION='0.7.0'
+FILES=('run.sh','refresh.sh','policy.sh','export.sql','prepare-edit.sql','verify-edit.sql','validate-request.sql','backup-check.sh','kc-backup-check','mtp.sh','kc-screen','runtime-env.sh','diagnose.sh','kc-sqlite3')
+KUAL_DIR='extensions/kc-ivy-kpw3/'
+
+
+def kual_entries(version):
+    config=('<?xml version="1.0" encoding="UTF-8"?>\n<extension>\n'
+        '<information><name>KC ivy KPW3</name><version>'+version+'</version>'
+        '<author>KC</author></information>\n'
+        '<menus><menu type="json" dynamic="true">menu.json</menu></menus>\n</extension>\n')
+    items=[dict(name=name,action='sh /mnt/us/'+KUAL_DIR+'launch.sh'+(' '+option if option else ''))
+        for name,option in [('1. 检查运行环境','--diagnose'),('2. 刷新收藏夹','--refresh'),
+                            ('3. 六步能力测试','--self-test'),('4. 执行已验证任务','')]]
+    menu=json.dumps(dict(items=[dict(name='KC ivy KPW3',items=items)]),ensure_ascii=False,indent=2)+'\n'
+    return {KUAL_DIR+'config.xml':config,KUAL_DIR+'menu.json':menu,
+        KUAL_DIR+'launch.sh':f'#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/{version}/run.sh "$@"\n'}
+
+
+def known_kual(relative,data):
+    # Only complete generated templates are ours; a marker inside custom data is not enough.
+    try:body=data.decode('utf-8')
+    except UnicodeDecodeError:return False
+    versions=re.findall(r'[0-9]+\.[0-9]+\.[0-9]+',body)
+    return any(body==kual_entries(v)[relative] for v in [VERSION,*versions])
 
 
 def known_launcher(path,mount):
@@ -56,10 +79,9 @@ def rollback(manager,backup_path):
     return len(prepared)
 
 def install(manager,resources):
-    from .mtp import is_mtp, enabled, install_mtp
+    from .mtp import is_mtp
     if is_mtp(manager):
-        if not enabled():raise Invalid('请先在设备维护中开启实验性 MTP 传输')
-        return install_mtp(manager,resources)
+        raise Invalid('KC ivy KPW3 仅支持 USB 磁盘安装，不支持 MTP；未写入设备')
     mount=resolve_mount(manager)
     def safe(relative):
         p=(mount/relative)
@@ -77,10 +99,19 @@ def install(manager,resources):
             raise Invalid('同版本运行文件不同，停止覆盖：'+name)
         if target.with_suffix(target.suffix+'.partial').exists():
             raise Invalid('发现未完成的运行文件，请先检查：'+name)
-    for name in ('KC刷新收藏夹.sh','KC执行收藏夹任务.sh','KC验证编辑能力.sh'):
-        target=safe('documents/'+name)
-        if target.with_name(target.name+'.kc-partial').exists():raise Invalid('发现未完成入口：'+name)
-    if old.with_name(old.name+'.kc-partial').exists():raise Invalid('发现未完成的旧 KC 入口')
+    replacements={
+        'documents/KC刷新收藏夹.sh':f'#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/{VERSION}/run.sh --refresh\n',
+        'documents/KC执行收藏夹任务.sh':f'#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/{VERSION}/run.sh\n',
+        'documents/KC验证编辑能力.sh':f'#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/{VERSION}/run.sh --self-test\n',
+        'documents/KC检查运行环境.sh':f'#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/{VERSION}/run.sh --diagnose\n',
+        **kual_entries(VERSION)}
+    if old.exists():
+        replacements['kmc/kpm/packages/kc/launch.sh']=replacements['documents/KC执行收藏夹任务.sh']
+    for relative in replacements:
+        target=safe(relative)
+        if target.with_name(target.name+'.kc-partial').exists():raise Invalid('发现未完成入口：'+relative)
+        if relative.startswith(KUAL_DIR) and target.exists() and not known_kual(relative,target.read_bytes()):
+            raise Invalid('未知同名 KUAL 文件，停止覆盖：'+relative)
     runtime.mkdir(parents=True,exist_ok=True)
     for name in FILES:
         data=resources['runtime/'+name]
@@ -94,12 +125,6 @@ def install(manager,resources):
         partial.rename(target)
     backup=safe('kc-sync/upgrades/'+str(uuid4()));backup.mkdir(parents=True)
     records=[]
-    replacements={
-        'documents/KC刷新收藏夹.sh':f'#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/{VERSION}/run.sh --refresh\n',
-        'documents/KC执行收藏夹任务.sh':f'#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/{VERSION}/run.sh\n',
-        'documents/KC验证编辑能力.sh':f'#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/{VERSION}/run.sh --self-test\n'}
-    if old.exists():
-        replacements['kmc/kpm/packages/kc/launch.sh']=replacements['documents/KC执行收藏夹任务.sh']
     for relative,body in replacements.items():
         target=safe(relative);target.parent.mkdir(parents=True,exist_ok=True)
         old=target.read_bytes() if target.exists() else None

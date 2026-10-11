@@ -11,7 +11,7 @@ DIR=$(CDPATH= cd -P "$(dirname "$0")" && pwd)
 ROOT="$MOUNT/kc-sync"
 PROBE=0
 MODE=sync
-case "${1-}" in --refresh) MODE=refresh ;; --self-test) PROBE=1; MODE=probe ;; '') ;; *) echo 'Usage: run.sh [--refresh|--self-test]'; exit 2 ;; esac
+case "${1-}" in --diagnose) exec sh "$DIR/diagnose.sh" ;; --refresh) MODE=refresh ;; --self-test) PROBE=1; MODE=probe ;; '') ;; *) echo 'Usage: run.sh [--diagnose|--refresh|--self-test]'; exit 2 ;; esac
 PHASE=initialization
 STARTED=$(date +%s)
 mkdir -p "$ROOT/logs"
@@ -19,7 +19,7 @@ REPORT="$ROOT/logs/KC运行结果-$(date +%Y%m%d-%H%M%S)-$$.txt"
 (set -C; : > "$REPORT") 2>/dev/null || { echo 'Cannot create KC run report; stopped'; exit 4; }
 printf 'KC 运行报告：%s\n' "$REPORT"
 exec >> "$REPORT" 2>&1
-printf 'KC 0.6.15 | mode=%s\n运行中；只有末尾的结果才表示本次运行已结束。\n' "$MODE"
+printf 'KC 0.7.0 kc-ivy-kpw3 soft-float | mode=%s\n运行中；只有末尾的结果才表示本次运行已结束。\n' "$MODE"
 date
 # Experimental screen feedback: Chinese cards with ASCII fallback; never stop the Kindle UI/services.
 SCREEN=0
@@ -159,6 +159,8 @@ if [ "$MODE" = refresh ]; then
     sh "$DIR/refresh.sh"
     exit 0
 fi
+. "$DIR/runtime-env.sh"
+kc_env_init "$DIR" "$DB" || exit 4
 phase acquire_lock
 mkdir "$LOCK" 2>/dev/null || { echo 'KC is running or requires lock recovery.'; exit 3; }
 OWN=1
@@ -191,6 +193,7 @@ SAFE_POLICY=$(scalar "SELECT json_valid('$S_POLICY') AND json_extract('$S_POLICY
 FIRMWARE=$(cat /etc/prettyversion.txt 2>/dev/null || printf unknown)
 S_FIRMWARE=$(sq "$FIRMWARE")
 IDENTITY_OK=$(scalar "SELECT json_extract('$S_CAPS','$.firmware')='$S_FIRMWARE'
+ AND json_extract('$S_CAPS','$.runtime')='kc-0.7.0-softfloat'
  AND json_extract('$S_CAPS','$.device.instance_id')=json_extract('$S_DEVICE','$.instance_id')
  AND (json_extract('$S_DEVICE','$.storage_uuid') IS NULL OR json_extract('$S_DEVICE','$.storage_uuid')=
  json_extract(CAST(readfile('$S_ROOT/../driveinfo.calibre') AS TEXT),'$.device_store_uuid'));")
@@ -540,7 +543,7 @@ for INPUT in "$ROOT/inbox"/*.json; do
     if [ "$PROBE" -eq 1 ]; then
         PASSED=$(scalar "SELECT count(*)=6 AND sum(json_extract(value,'$.status')='confirmed')=6 FROM json_each(CAST(readfile('$(sq "$JOB_DIR/progress.json")') AS TEXT));")
         if [ "$PASSED" = 1 ]; then
-            scalar "SELECT json_object('version','kc-0.6.4-probe-$JOB_ID','device',json('$S_DEVICE'),'firmware','$S_FIRMWARE',
+            scalar "SELECT json_object('version','kc-0.7.0-probe-$JOB_ID','runtime','kc-0.7.0-softfloat','device',json('$S_DEVICE'),'firmware','$S_FIRMWARE',
               'verified_operations',json('[\"create_collection\",\"add_members\",\"remove_members\",\"rename_collection\",\"delete_collection\",\"verify_state\"]'),
               'evidence','Six-step device database/count/file-size verification passed. Probe job: $JOB_ID');" > "$ROOT/state/capabilities.json.partial"
             sync

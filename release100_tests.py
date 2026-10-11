@@ -1,4 +1,4 @@
-import tempfile,unittest,os
+import tempfile,unittest,os,json
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -17,14 +17,16 @@ class ReleaseRecovery(unittest.TestCase):
         backup=install(self.manager,self.resources);unlink=Path.unlink
         def crash(p,*a,**kw):unlink(p,*a,**kw);raise OSError('disconnected')
         with patch.object(Path,'unlink',crash),self.assertRaises(OSError):rollback(self.manager,backup)
-        self.assertEqual(rollback(self.manager,backup),2)
+        entries=len(json.loads((Path(backup)/'manifest.json').read_text())['entries'])
+        self.assertEqual(rollback(self.manager,backup),entries-1)
         self.assertEqual(rollback(self.manager,backup),0)
     def test_replace_interrupt_and_repeat(self):
         target=self.root/'documents/KC刷新收藏夹.sh';target.write_bytes(b'original')
         backup=install(self.manager,self.resources);replace=os.replace
         def crash(a,b):replace(a,b);raise OSError('disconnected')
         with patch('plugin.install.os.replace',crash),self.assertRaises(OSError):rollback(self.manager,backup)
-        self.assertEqual(rollback(self.manager,backup),2)
+        entries=len(json.loads((Path(backup)/'manifest.json').read_text())['entries'])
+        self.assertEqual(rollback(self.manager,backup),entries-1)
         self.assertEqual(target.read_bytes(),b'original')
     def test_partial_restore_resumes_and_foreign_data_blocks(self):
         target=self.root/'documents/KC刷新收藏夹.sh';target.write_bytes(b'original')
@@ -32,13 +34,14 @@ class ReleaseRecovery(unittest.TestCase):
         partial=target.with_name(target.name+'.kc-restore');partial.write_bytes(b'foreign')
         with self.assertRaises(Invalid):rollback(self.manager,backup)
         partial.write_bytes(b'ori')
-        self.assertEqual(rollback(self.manager,backup),3)
+        entries=len(json.loads((Path(backup)/'manifest.json').read_text())['entries'])
+        self.assertEqual(rollback(self.manager,backup),entries)
         self.assertEqual(target.read_bytes(),b'original')
     def test_modified_entry_blocks_before_other_changes(self):
         backup=install(self.manager,self.resources)
         target=self.root/'documents/KC执行收藏夹任务.sh';target.write_bytes(b'user edit')
         with self.assertRaises(Invalid):rollback(self.manager,backup)
-        self.assertEqual(len(list((self.root/'documents').glob('*.sh'))),3)
+        self.assertEqual(len(list((self.root/'documents').glob('*.sh'))),4)
         self.assertEqual(target.read_bytes(),b'user edit')
     def test_space_failure_is_clear(self):
         with patch('plugin.sharing.shutil.disk_usage',return_value=SimpleNamespace(free=0)):

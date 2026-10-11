@@ -5,7 +5,7 @@ from plugin.install import install,rollback,FILES,VERSION
 
 from plugin import KCPlus
 version='.'.join(map(str,KCPlus.version))
-root=pathlib.Path(__file__).parent;path=root/('dist/kc-ivy_'+version+'.zip')
+root=pathlib.Path(__file__).parent;path=root/('dist/kc-ivy-kpw3_'+version+'.zip')
 before=hashlib.sha256(path.read_bytes()).hexdigest()
 runpy.run_path(str(root/'build.py'),run_name='__main__')
 if hashlib.sha256(path.read_bytes()).hexdigest()!=before:raise AssertionError('nondeterministic plugin build')

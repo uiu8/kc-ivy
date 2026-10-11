@@ -108,7 +108,9 @@ class InstallDetection(unittest.TestCase):
             self.assertIn(('/mnt/us/kc-sync/runtime/'+VERSION+'/run.sh').encode(), old.read_bytes())
             repeated = install(manager, resources)
             self.assertEqual(rollback(manager, repeated), 0)
-            self.assertEqual(rollback(manager, backup), 4)
+            manifest=json.loads((Path(backup)/'manifest.json').read_text())
+            self.assertEqual(len(list((mount/'documents').glob('KC*.sh'))),4)
+            self.assertEqual(rollback(manager, backup), len(manifest['entries']))
             self.assertEqual(old.read_bytes(), body)
 
     def test_fallback_install_and_rollback(self):
@@ -120,7 +122,9 @@ class InstallDetection(unittest.TestCase):
         with patch('plugin.mounts.windows_volumes', return_value=[(mount, 'Kindle')]):
             backup = install(self.manager(), resources)
             self.assertIn(('/runtime/'+VERSION+'/run.sh').encode(), old.read_bytes())
-            self.assertEqual(rollback(self.manager(), backup), 4)
+            manifest=json.loads((Path(backup)/'manifest.json').read_text())
+            self.assertEqual(len(list((mount/'documents').glob('KC*.sh'))),4)
+            self.assertEqual(rollback(self.manager(), backup), len(manifest['entries']))
             self.assertEqual(old.read_bytes(), body)
 
     def test_runtime_upgrade_preserves_previous_version_and_pending(self):
@@ -139,7 +143,7 @@ class InstallDetection(unittest.TestCase):
         self.assertIn(('/runtime/'+VERSION+'/run.sh').encode(), old.read_bytes())
         self.assertEqual(old_runtime.read_bytes(), b'previous runtime retained')
         self.assertEqual(pending.read_bytes(), b'{"retained":"unfinished task"}')
-        self.assertEqual(rollback(self.manager(mount), backup), 4)
+        self.assertEqual(rollback(self.manager(mount), backup), len(json.loads((Path(backup)/'manifest.json').read_text())['entries']))
         self.assertEqual(old.read_bytes(), body)
 
 

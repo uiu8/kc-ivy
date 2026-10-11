@@ -6,7 +6,8 @@ from .install import FILES
 
 VERSION=re.compile(r'\d+\.\d+\.\d+')
 REF=re.compile(rb'/mnt/us/kc-sync/runtime/(\d+\.\d+\.\d+)/')
-LAUNCHERS={'documents/KC刷新收藏夹.sh','documents/KC执行收藏夹任务.sh','documents/KC验证编辑能力.sh','kmc/kpm/packages/kc/launch.sh'}
+LAUNCHERS={'documents/KC刷新收藏夹.sh','documents/KC执行收藏夹任务.sh','documents/KC验证编辑能力.sh','documents/KC检查运行环境.sh','kmc/kpm/packages/kc/launch.sh',
+    'extensions/kc-ivy-kpw3/config.xml','extensions/kc-ivy-kpw3/menu.json','extensions/kc-ivy-kpw3/launch.sh'}
 
 def checked(root,path):
     if not path.resolve().is_relative_to(root.resolve()):raise Invalid('版本目录路径越界')
@@ -24,10 +25,11 @@ def preview(store):
         fingerprints.append((str(p.relative_to(mount)),hashlib.sha256(b).hexdigest()))
         return b
     def refs(b):return {x.decode('ascii') for x in REF.findall(b)}
-    for base in [mount/'documents',mount/'kmc/kpm/packages']:
+    for base in [mount/'documents',mount/'kmc/kpm/packages',mount/'extensions']:
         if not base.exists():continue
         checked(mount,base)
-        for script in sorted(base.rglob('*.sh')):
+        for script in sorted(base.rglob('*')):
+            if script.suffix not in (('.sh','.json','.xml') if base==mount/'extensions' else ('.sh',)):continue
             active.update(refs(data(script)))
     if not active:blocked.append('未识别到正在使用的 KC 版本，暂不清理')
     if (root/'state/pending.json').exists():blocked.append('有待核验的执行结果，先处理原任务')

@@ -36,12 +36,12 @@ with tempfile.TemporaryDirectory(prefix='.shell-',dir=ROOT) as temp:
     (mount/'metadata.calibre').write_bytes(canonical([dict(lpath='documents/a.azw3',uuid='calibre-book')]))
     (mount/'driveinfo.calibre').write_bytes(canonical(dict(device_store_uuid='storage',last_library_uuid=None)))
     from plugin.install import VERSION
-    script=(ROOT/'dist'/('KC刷新设备状态_'+VERSION+'测试版.sh')).read_text(encoding='utf-8')
+    script=(ROOT/'dist'/('kc-ivy-kpw3-refresh_'+VERSION+'.sh')).read_text(encoding='utf-8')
     script=script.replace("DB='/var/local/cc.db'","DB='"+db.as_posix()+"'")
     script=script.replace("MOUNT='/mnt/us'","MOUNT='"+mount.as_posix()+"'")
     script=script.replace("LOCK='/tmp/kc-sync.lock'","LOCK='"+(base/'lock').as_posix()+"'")
     path=base/'refresh.sh'; path.write_text(script,encoding='utf-8',newline='\n')
-    (bindir/'sqlite3').write_text('#!/bin/sh\nexec '+shlex.quote(cli)+' "$@"\n',encoding='utf-8',newline='\n')
+    (bindir/'sqlite3').write_text('#!/bin/sh\nexport KC_SQLITE_CLI='+shlex.quote(cli)+'\nexec '+shlex.quote(node)+' '+shlex.quote((ROOT/'sqlite_posix_adapter.mjs').as_posix())+' "$@"\n',encoding='utf-8',newline='\n')
     (bindir/'uuidgen').write_text('#!/bin/sh\nexec '+shlex.quote(node)+' -e '+shlex.quote("process.stdout.write(require('crypto').randomUUID()+'\\n')")+'\n',encoding='utf-8',newline='\n')
     # A surprise service call is an immediate failure. No stub can mutate cc.db.
     (bindir/'curl').write_text('#!/bin/sh\nprintf called > '+shlex.quote((base/'forbidden-service-call').as_posix())+'\nexit 99\n',encoding='utf-8',newline='\n')

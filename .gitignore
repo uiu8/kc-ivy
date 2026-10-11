@@ -14,3 +14,6 @@ __pycache__/
 *.sqlite
 *-results.json
 /native/kc-backup-check-test.exe
+
+/native/kc-screen-test.exe
+/native/kc-sqlite3-test.exe

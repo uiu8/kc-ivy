@@ -1,9 +1,14 @@
 {
-  "target": "arm-linux-musleabihf",
-  "glyphs_sha256": "3bad16417f7dc3e45c78ca9e5fe880a5acf56321919b66eb1232688eebc811f3",
-  "zig": "0.13.0",
+  "build_script_sha256": "7baa0b940ec5e74291a263f63d803e4d5258b436b4d6224f01a74b3fd08e4a0c",
+  "cpu": "cortex_a9",
+  "target": "arm-linux-musleabi",
+  "source_sha256": "57b353be96365719005ac0f95a207e4db077e54eac5267eaad95a5cbdfa3b86d",
+  "float_abi": "soft",
   "static": true,
-  "cpu": "cortex_a8",
-  "arm_sha256": "f0edcdc772e8d98aef5cfd89b4328ab6d9ff8141c4b6860b7ecb564fbf356600",
-  "source_sha256": "57b353be96365719005ac0f95a207e4db077e54eac5267eaad95a5cbdfa3b86d"
+  "zig": "0.13.0",
+  "host_sha256": "3fd500a84e6039ca27e239f3d60c74c8ddfeacb1622bb238ac5f81debdd67cce",
+  "glyphs_sha256": "3bad16417f7dc3e45c78ca9e5fe880a5acf56321919b66eb1232688eebc811f3",
+  "zig_path": "zig.exe",
+  "arm_sha256": "ffec463b4a1143b1626dd031d40cb4910ae7e70743234500ad2100799ee9f1d6",
+  "zig_sha256": "2e44af5bbf7a72ef8cbdae370284687c95d65a19affa469d2ad0364d905b8e84"
 }

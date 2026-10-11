@@ -7,6 +7,7 @@ ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT))
 from plugin import KCPlus
 VERSION='.'.join(map(str,KCPlus.version))
+PACKAGE='kc-ivy-kpw3'
 OUT=ROOT/('dist/release-'+VERSION);OUT.mkdir(parents=True,exist_ok=True)
 env=dict(os.environ,CALIBRE_CONFIG_DIRECTORY=str(ROOT/('.config-release'+VERSION)),QT_QPA_PLATFORM='offscreen')
 debug=Path(sys.executable);customize=debug.with_name('calibre-customize.exe' if os.name=='nt' else 'calibre-customize')
@@ -24,7 +25,7 @@ def suite(names):
     return ['-c',"import sys,unittest;sys.path.insert(0,'.');r=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromNames("+repr(names)+"));sys.exit(not r.wasSuccessful())"]
 def main():
     if not run('build',['-e','build.py']):return False
-    if not run('install',['-a','dist/kc-ivy_'+VERSION+'.zip'],customize):return False
+    if not run('install',['-a','dist/'+PACKAGE+'_'+VERSION+'.zip'],customize):return False
     core=['reliability122_tests','device_books121_tests','repair118_tests','tests','workflow_tests','baseline_tests','settings_tests','scope026_tests','chain013_tests',
           'task_recovery017_tests','retention021_tests','usability020_tests','install_detection_tests',
           'migration_share_tests','mtp_tests.MTP','release100_tests','runtime_versions_tests','maintenance108_tests',
@@ -38,7 +39,7 @@ def main():
 passed=False
 try:passed=main()
 finally:
-    artifact=ROOT/('dist/kc-ivy_'+VERSION+'.zip')
+    artifact=ROOT/('dist/'+PACKAGE+'_'+VERSION+'.zip')
     report=dict(checks=records,hardware_tested=False,artifact_sha256=hashlib.sha256(artifact.read_bytes()).hexdigest() if artifact.exists() else None)
     report['passed']=bool(passed) and bool(records) and all(r['exit_code']==0 for r in records)
     (OUT/'checks.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf8')

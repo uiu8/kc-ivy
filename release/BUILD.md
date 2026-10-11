@@ -8,7 +8,7 @@
 calibre-debug -e build.py
 ```
 
-输出dist/kc-ivy_<版本>.zip和build-<版本>.json（版本取自plugin/__init__.py）。ZIP条目时间固定，相同输入得到相同摘要；build清单不表示真机认证。
+输出dist/kc-ivy-kpw3_<版本>.zip和build-<版本>.json（版本取自plugin/__init__.py）。ZIP条目时间固定，相同输入得到相同摘要；build清单不表示真机认证。
 
 ## 屏幕卡片辅助程序
 
@@ -22,7 +22,7 @@ calibre-debug -e build.py
 
 ## 重建原生检查程序（可选）
 
-使用Zig0.13.0、SQLite amalgamation3.26.0；从各项目官方来源取得工具和源码。目标是arm-linux-musleabihf/cortex_a8，静态链接；不能据此声称其他架构支持。原组件摘要记录于native/check-build.json。
+使用Zig0.13.0、SQLite amalgamation3.26.0；从各项目官方来源取得工具和源码。目标是arm-linux-musleabi/cortex_a9，静态链接；不能据此声称其他架构支持。原组件摘要记录于native/check-build.json。
 
 ```powershell
 ./native/build_check.ps1 -ZigPath 'D:/software/zig/zig.exe' -SqliteSourceRoot 'D:/software/sqlite-amalgamation-3260000'
@@ -70,3 +70,7 @@ calibre-debug -e native/generate_screen_glyphs.py D:/software/KC-development/fon
 ```
 
 字体来源摘要及子集规模见 native/screen-font.json；许可见 licenses/NotoSansSC-OFL.txt。
+
+## 旧固件备用 SQLite
+
+使用相同 Zig 和 SQLite 来源执行 native/build_sqlite.ps1，参数与 build_check.ps1 相同。生成 device/kc-sqlite3、native/kc-sqlite3-test.exe 和 native/sqlite-build.json。启用 JSON1/readfile；数据库主文件只读，允许 TEMP 表；缺失 ICU 时拒绝实际比较。执行 calibre-debug -e softfloat_tests.py 验证备用路径和 ELF。

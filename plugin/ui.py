@@ -177,7 +177,7 @@ class Work(QRunnable):
 
 class KCPlusAction(InterfaceAction):
     name = 'kc-ivy'
-    action_spec = ('kc-ivy', None, '整理 Kindle 收藏夹并预览编辑', None)
+    action_spec = ('kc-ivy-kpw3', None, '整理 Kindle 收藏夹并预览编辑', None)
     def genesis(self):
         self.window = None
         pixmap = QPixmap()
@@ -252,12 +252,12 @@ class Manager(QDialog, Pages):
         self.reload_requested=False
         self.pool = QThreadPool(self); self.pool.setMaxThreadCount(1)
         from . import KCPlus
-        self.setWindowTitle('kc-ivy '+'.'.join(map(str,KCPlus.version))+' · 收藏夹管理')
+        self.setWindowTitle('kc-ivy-kpw3 '+'.'.join(map(str,KCPlus.version))+' · 收藏夹管理')
         self.resize(1440,900)
         outer=QHBoxLayout(self);outer.setContentsMargins(0,0,0,0);outer.setSpacing(0)
         navigation=QWidget();navigation.setObjectName('navigation');navigation.setFixedWidth(154);outer.addWidget(navigation)
         nav_layout=QVBoxLayout(navigation);nav_layout.setContentsMargins(10,18,10,12)
-        brand=QLabel('kc-ivy');brand.setObjectName('heading');nav_layout.addWidget(brand)
+        brand=QLabel('kc-ivy-kpw3');brand.setObjectName('heading');nav_layout.addWidget(brand)
         self.navigation_layout=nav_layout;self.navigation_buttons=[]
         panel=QWidget();outer.addWidget(panel,1);root=QVBoxLayout(panel);root.setContentsMargins(18,12,18,12);root.setSpacing(10)
         heading=QLabel('我的收藏夹');self.heading=heading;heading.setObjectName('heading');root.addWidget(heading)

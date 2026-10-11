@@ -3,8 +3,8 @@
 kc-ivy/KC项目代码由项目贡献者提供，按根目录MIT LICENSE授权。以下组件保留各自条款，不因本项目选择MIT而改变。
 
 - Calibre为外部运行宿主，插件调用其API，不随包分发Calibre。官方源码与许可：https://github.com/kovidgoyal/calibre ，https://github.com/kovidgoyal/calibre/blob/master/LICENSE 。
-- kc-backup-check静态包含SQLite 3.26.0。SQLite发布代码为公有领域，官方说明：https://www.sqlite.org/copyright.html 。构建使用sqlite-amalgamation-3260000，校验摘要见native/check-build.json。
-- 静态ARM检查程序使用musl及Zig工具链组件。随包保留licenses/musl.txt和licenses/zig.txt的原许可文本。Zig 0.13.0，目标arm-linux-musleabihf / cortex_a8，构建来源和参数见BUILD.md。
+- kc-backup-check 与 kc-sqlite3 静态包含SQLite 3.26.0。SQLite发布代码为公有领域，官方说明：https://www.sqlite.org/copyright.html 。构建使用sqlite-amalgamation-3260000，校验摘要见native/check-build.json。
+- 静态ARM检查程序使用musl及Zig工具链组件。随包保留licenses/musl.txt和licenses/zig.txt的原许可文本。Zig 0.13.0，目标arm-linux-musleabi / cortex_a9，构建来源和参数见BUILD.md。
 - Kindle的BusyBox、sqlite3、curl及本地系统服务由设备提供，本包不分发Kindle固件或认证令牌。/change是内部接口，不承诺其他固件兼容。
 - 原Kindle Collections属于外部参考/兼容导入对象，不是运行依赖，不随本包分发其插件ZIP。此说明不是对其他项目重新授权。
 

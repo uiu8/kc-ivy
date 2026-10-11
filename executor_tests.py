@@ -28,7 +28,7 @@ class Fixture:
             p=self.mount/'documents'/(b['uuid']+'.txt');p.write_text('fixture book, never modified')
             b['location']=p.as_posix()
         mount_fixture(self.mount,self.s)
-        caps=dict(self.s['capabilities'],device=self.s['device'],firmware='unknown')
+        caps=dict(self.s['capabilities'],device=self.s['device'],firmware='unknown',runtime='kc-0.7.0-softfloat')
         (self.mount/'kc-sync/state/capabilities.json').write_bytes(canonical(caps))
         (self.mount/'kc-sync/state/policy.json').write_bytes(canonical(self.s['policy']))
         (self.mount/'metadata.calibre').write_bytes(canonical([dict(lpath='documents/'+b['uuid']+'.txt',uuid=b['calibre_uuid']) for b in self.s['books'] if b['calibre_uuid']]))

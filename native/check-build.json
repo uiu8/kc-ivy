@@ -1,11 +1,17 @@
 {
-  "target": "arm-linux-musleabihf",
-  "cpu": "cortex_a8",
-  "arm_sha256": "82e583d0ffe32eee25e3551b3dae8d711bc802939734b10499b3b343088ccd17",
-  "zig": "0.13.0",
-  "static": true,
+  "host_sha256": "c249f7efcb6c7f75bc1f654830b2f73e864d288ceee0cb052a4d975c53825487",
+  "build_script_sha256": "0363d23f0b2dc1fafccc1555d240e24f7da8680cdc5b9dbe7eae93962a6261d2",
+  "zig_path": "zig.exe",
+  "arm_sha256": "8a161077c6e744767e878a0b0a7649bb3ba0a9967f021956cb352a97d62dbdf0",
+  "target": "arm-linux-musleabi",
   "source_sha256": "166d6c480b2fdd2e3b5d14ae16c53c78672f515d84509dfd10ff271c69217fb0",
+  "sqlite_source_root": "sqlite-amalgamation-3260000",
+  "zig": "0.13.0",
   "sqlite_sha256": "cee203f4dba53aaf721092f26d3492cc78e6dddaad9f8981deaa19bae9f517b3",
-  "host_sha256": "2fe640314fafc41ede73735b992c75c466a8ae03f254922fce1a019cf3bceb87",
-  "sqlite": "3.26.0"
+  "cpu": "cortex_a9",
+  "sqlite": "3.26.0",
+  "zig_sha256": "2e44af5bbf7a72ef8cbdae370284687c95d65a19affa469d2ad0364d905b8e84",
+  "sqlite_header_sha256": "4665ec0dc1a9bc06884c492a245f21ec06470d65cc6f3023e3c2e3e7b4d97d02",
+  "float_abi": "soft",
+  "static": true
 }

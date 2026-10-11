@@ -154,7 +154,7 @@ class Pages:
     def about(self):
         from . import KCPlus
         from .install import VERSION
-        QMessageBox.information(self,'关于 kc-ivy','kc-ivy '+'.'.join(map(str,KCPlus.version))+' 正式版 / KC '+VERSION+'\n主要使用环境：Windows / Calibre 9.15+；历史真机记录：PW5、5.17.1.0.3、USB 磁盘。\n其他型号与固件的理论范围见随包“Kindle 运行环境与理论支持范围”，不代表实测通过。\nMTP、迁移分享及其他平台保留实验标识；新增型号与实验功能仍需真机验收。\n无需安装原 Kindle Collections；修改需预览、设备执行和确认。')
+        QMessageBox.information(self,'关于 kc-ivy-kpw3','kc-ivy-kpw3 '+'.'.join(map(str,KCPlus.version))+' / KC '+VERSION+'\n面向 KPW3 5.16.2.1.1 soft-float 固件的完整 USB 版本；不支持 MTP 安装。\n首次安装或升级后必须先检查环境、刷新，再完成六步能力验证。设备兼容性以实际回执为准。\n收藏夹修改维持 /change 接口，需预览、设备执行和确认。')
     def rollback_device(self):
         try:
             from .mtp import is_mtp
@@ -544,9 +544,9 @@ class Pages:
         if not can_enable(self.gui.device_manager) and not option.isChecked():option.setEnabled(False)
         note=QLabel('尚无 KPW6 真机验证。开启仅允许尝试传输，不表示设备已具备编辑能力。\n'
             '只有连接到 MTP Kindle 才能开启；开关不会安装文件，也不会改变普通 USB 设备的传输方式。\n'
-            '安装后断开连接，在 Kindle 运行带 -MTP 的刷新 / 测试 / 执行入口；重连读取结果。\n'
-            '支持安装、读取快照与回执、发送和重试任务、能力测试及保护策略。\n'
-            'KC 0.6.15 起支持刚传入的新书：传书完成后读取设备状态，即可整理并发送；断开后执行。\n'
+            '当前 kc-ivy-kpw3 仅支持 USB 磁盘安装，不能通过此开关启用 MTP 安装。\n'
+            '通用 MTP 功能用于既有兼容运行环境：读取快照与回执、发送和重试任务、能力测试及保护策略。\n'
+            'KC 0.7.0 的设备端流程要求 USB 磁盘；本版本安装不走 MTP。\n'
             '首次发现和发送前需读取新书文件校验，大文件会增加等待时间。\n'
             '可以撤下已核验的实验入口；自动清理暂未开放。关闭开关不会撤销已发送任务。\n'
             '断线后使用任务记录中的「核对 / 重试原任务」，不要另建重复任务。')
@@ -572,7 +572,7 @@ class Pages:
             if option.isChecked() and not bool(settings.get(PREFERENCE,False)) and not can_enable(self.gui.device_manager):
                 self.error('请先连接 Calibre 已识别的 MTP Kindle，才能开启实验功能。');return
             settings[PREFERENCE]=option.isChecked()
-            self.error('实验性 MTP 已开启；先安装配套 KC，再断开连接运行刷新。' if option.isChecked() else '实验性 MTP 已关闭；设备文件保留。')
+            self.error('MTP 已开启，但 kc-ivy-kpw3 安装仍只支持 USB 磁盘。' if option.isChecked() else 'MTP 已关闭；设备文件保留。')
 
     def rollback_mtp_device(self):
         from .mtp import rollback_mtp,PREFERENCE
@@ -592,21 +592,15 @@ class Pages:
     def install_device(self):
         try:
             from .install import install,FILES
+            from .mtp import is_mtp
+            if is_mtp(self.gui.device_manager):raise Invalid('KC ivy KPW3 仅支持 USB 磁盘安装，不支持 MTP；未写入设备')
             resources=self.gui.iactions['kc-ivy'].load_resources(['runtime/'+name for name in FILES])
             from .install import VERSION
-            from .mtp import is_mtp
-            mtp=is_mtp(self.gui.device_manager)
-            detail='实验性 MTP 将新增三个 -MTP 入口，保留原入口；尚无 KPW6 真机验证。可在实验设置中撤下入口。' if mtp else '当前为普通 USB 模式，与 MTP 开关无关；此次手动安装会升级 KC，并备份启动入口，可从“恢复设备启动入口”回退。'
-            if QMessageBox.question(self,'安装配套 KC','安装 KC '+VERSION+' 运行文件。'+detail+'是否安装？')!=QMessageBox.StandardButton.Yes:return
+            detail='安装 KC ivy KPW3 的 USB 运行文件、四个文档入口及 KUAL 菜单，并备份入口，可从“恢复设备启动入口”回退。'
+            hint='安全弹出并断开 USB 后，先运行「KC检查运行环境」，诊断通过后运行「KC刷新收藏夹」。重连读取新状态，在插件准备六步能力测试，再弹出运行「KC验证编辑能力」。重连确认六步全部通过后，才可预览并执行业务任务；已有旧状态也必须完成这些步骤。'
+            if QMessageBox.question(self,'安装 KC ivy KPW3','安装 KC '+VERSION+' 运行文件。'+detail+'\n'+hint+'\n是否安装？')!=QMessageBox.StandardButton.Yes:return
             def installed(path):
-                if mtp:
-                    self.error(path)
-                    return
-                if self.snapshot:
-                    hint='已有设备状态，本次升级无需先刷新收藏夹。若任务已发送，安全弹出后直接运行「KC执行收藏夹任务」，无需重发。'
-                else:
-                    hint='首次使用或设备状态尚未初始化时，安全弹出后先运行「KC刷新收藏夹」；已有状态且任务已发送时，可直接运行「KC执行收藏夹任务」，无需重发。'
-                self.error('已安装 KC '+VERSION+'。'+hint+'入口备份：'+path)
+                self.error('已安装 KC ivy KPW3 '+VERSION+'。'+hint+'入口备份：'+path)
             self.device_job(lambda:install(self.gui.device_manager,resources),installed,'kc-ivy 安装配套 KC')
         except Exception as e:self.error(e)
     def device_settings(self):

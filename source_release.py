@@ -4,8 +4,9 @@ from pathlib import Path
 from zipfile import ZipFile,ZipInfo,ZIP_DEFLATED
 
 root=Path(__file__).resolve().parent
+package='kc-ivy-kpw3'
 files={}
-for folder,patterns in [('plugin',['*.py','*.txt']),('plugin/images',['*.svg']),('schemas',['*.json']),('device',['*.sh','*.sql','kc-backup-check','kc-screen']),('licenses',['*.txt']),('release',['*.md'])]:
+for folder,patterns in [('plugin',['*.py','*.txt']),('plugin/images',['*.svg']),('schemas',['*.json']),('device',['*.sh','*.sql','kc-backup-check','kc-screen','kc-sqlite3']),('licenses',['*.txt']),('release',['*.md'])]:
     for pattern in patterns:
         for p in sorted((root/folder).glob(pattern)):files[p.relative_to(root).as_posix()]=p
 names=['verify_notice123.py','verify_reliability122.py','verify_books121.py','verify_column117.py','verify_ui115.py','verify_ui114.py','verify_release.py','verify_source.py','release_check.py',
@@ -15,7 +16,9 @@ names=['verify_notice123.py','verify_reliability122.py','verify_books121.py','ve
        'migration_share_tests.py','mtp_tests.py','executor_tests.py','calibre_workflow_tests.py','reliability122_tests.py','device_books121_tests.py','repair118_tests.py',
        'shell_tests.py','sqlite_posix_adapter.mjs','executor_driver.mjs',
        'native/build_screen.ps1','native/kc_screen.c','native/screen_glyphs.h','native/generate_screen_glyphs.py','native/screen-font.json','native/screen-build.json',
-       'native/build_check.ps1','native/kc_backup_check.c','native/check-build.json']
+       'native/build_check.ps1','native/kc_backup_check.c','native/check-build.json',
+       'native/build_sqlite.ps1','native/sqlite-build.json']
+names += ['softfloat_tests.py']
 names += ['verify_notice119.py','release114_tests.py','release100_tests.py','chain013_tests.py','roundtrip013_test.py','ui028_test.py','ui072_test.py','ui074_test.py']
 names += ['LICENSE','.gitignore','build.py','source_release.py']
 for name in names:files[name]=root/name
@@ -23,7 +26,7 @@ files['README.md']=root/'release/README.md'
 tree=ast.parse((root/'plugin/__init__.py').read_text(encoding='utf8'))
 version=next(ast.literal_eval(n.value) for n in ast.walk(tree) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='version' for t in n.targets))
 version='.'.join(map(str,version))
-out=root/('dist/kc-ivy_'+version+'_source.zip');manifest={}
+out=root/('dist/'+package+'_'+version+'_source.zip');manifest={}
 with ZipFile(out,'w',ZIP_DEFLATED) as z:
     for name,path in sorted(files.items()):
         data=path.read_bytes()

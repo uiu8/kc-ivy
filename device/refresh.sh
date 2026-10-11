@@ -1,5 +1,5 @@
 #!/bin/sh
-# KC 0.6.15: complete readonly snapshot; NO /change calls from this entrypoint.
+# KC 0.7.0 soft-float: complete readonly snapshot; NO /change calls from this entrypoint.
 set -eu
 umask 077
 DB='/var/local/cc.db'
@@ -21,6 +21,8 @@ trap 'exit 143' TERM
 mkdir "$LOCK" 2>/dev/null || { echo 'KC is already running or needs interrupted-run recovery.'; exit 3; }
 OWN_LOCK=1
 printf '%s\n' "$$" > "$LOCK/pid"
+. "$SCRIPT_DIR/runtime-env.sh"
+kc_env_init "$SCRIPT_DIR" "$DB" || exit 4
 for cmd in sqlite3 uuidgen sha256sum; do
     command -v "$cmd" >/dev/null 2>&1 || { echo "Required tool missing: $cmd"; exit 1; }
 done
@@ -109,11 +111,12 @@ CAP_OK=0
 if [ -f "$ROOT/state/capabilities.json" ]; then
     CAP_OK=$(sqlite3 -batch -bail ':memory:' "WITH c AS(SELECT CAST(readfile('$S_ROOT/state/capabilities.json') AS TEXT) b)
       SELECT CASE WHEN json_valid(b) THEN json_extract(b,'$.firmware')=rtrim(CAST(readfile('$S_LOCK/firmware.txt') AS TEXT),char(10)||char(13))
+      AND json_extract(b,'$.runtime')='kc-0.7.0-softfloat'
       AND json_extract(b,'$.device.instance_id')=json_extract(CAST(readfile('$S_ROOT/state/device.json') AS TEXT),'$.instance_id') ELSE 0 END FROM c;")
 fi
 if [ "$CAP_OK" != 1 ]; then
     CAP_ID=$(uuidgen)
-    sqlite3 -batch -bail ':memory:' "SELECT json_object('version','kc-0.6.0-$CAP_ID',
+    sqlite3 -batch -bail ':memory:' "SELECT json_object('version','kc-0.7.0-$CAP_ID','runtime','kc-0.7.0-softfloat',
       'device',json(CAST(readfile('$S_ROOT/state/device.json') AS TEXT)),
       'firmware',rtrim(CAST(readfile('$S_LOCK/firmware.txt') AS TEXT),char(10)||char(13)),
       'verified_operations',json('[\"verify_state\"]'),'evidence','Readonly executor. Native edits require explicit device probe.');" > "$ROOT/state/capabilities.json.partial"
