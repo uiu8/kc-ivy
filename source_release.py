@@ -1,5 +1,5 @@
 """Curated source bundle; never recurse over the development workspace."""
-import ast,hashlib,json
+import ast,hashlib,json,re
 from pathlib import Path
 from zipfile import ZipFile,ZipInfo,ZIP_DEFLATED
 
@@ -28,8 +28,11 @@ with ZipFile(out,'w',ZIP_DEFLATED) as z:
     for name,path in sorted(files.items()):
         data=path.read_bytes()
         if name=='README.md':
-            for doc in ('KINDLE_ENVIRONMENT.md','DEVICE_BOOKS.md','NEW_BOOKS.md','RELIABILITY.md','SCREEN_PROGRESS.md','SUPPORT.md','CHANGELOG.md','BUILD.md','THIRD_PARTY.md'):
-                data=data.replace(f']({doc})'.encode(),f'](release/{doc})'.encode())
+            # Root README is release/README.md: every relative release doc link moves under release/.
+            text=re.sub(r'\]\(([^()/:#\s]+\.md)\)',lambda m:f'](release/{m.group(1)})' if (root/'release'/m.group(1)).is_file() else m.group(0),data.decode('utf8'))
+            broken=[t for t in re.findall(r'\]\(([^()\s:#]+\.md)\)',text) if not (root/t).is_file()]
+            if broken or '同目录' in text:raise SystemExit('README links not valid from repository root: '+repr(broken))
+            data=text.encode('utf8')
         manifest[name]=hashlib.sha256(data).hexdigest()
         info=ZipInfo(name,(2026,10,7,0,0,0));info.compress_type=ZIP_DEFLATED;info.external_attr=0o100644<<16
         z.writestr(info,data)

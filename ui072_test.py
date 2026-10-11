@@ -6,7 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 from calibre.gui2 import Application
 from calibre.ebooks.metadata.book.base import Metadata
-from qt.core import QWidget,Qt,QPushButton,QFontDatabase,QApplication,QKeyEvent,QEvent,QMouseEvent,QPoint,QPointF
+from qt.core import QWidget,Qt,QPushButton,QFontDatabase,QApplication,QKeyEvent,QEvent,QMouseEvent,QPoint,QPointF,QDialogButtonBox,QTimer
 from calibre_plugins.kc_plus.ui import Manager
 from calibre_plugins.kc_plus.service import Service
 from calibre_plugins.kc_plus.planner import Catalog
@@ -76,6 +76,10 @@ with tempfile.TemporaryDirectory() as tmp:
         button(share,'全选').click();assert share.selection.selected_books()=={ids[0]}
         assert share.selection.group_state('column:待读')==0
         sharefile=root/'share.zip';center.formats.setText('TXT')
+        def confirm_export():
+            dialog=QApplication.activeModalWidget()
+            dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.StandardButton.Ok).click()
+        QTimer.singleShot(50,confirm_export)
         with patch.object(migration_ui.QFileDialog,'getSaveFileName',return_value=(str(sharefile),'')):center.export_books()
         wait(center);m=inspect_share(sharefile);assert len(m['backup']['books'])==1 and [c['name'] for c in m['backup']['collections']]==['文学']
         center.use_calibre_selection();wait(center);assert share.selection.selected_books()=={ids[2]}

@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory() as tmp:
     assert not service.state.job_summaries(service.key(library,s))
     gui=QWidget();gui.current_db=db;gui.device_manager=SimpleNamespace(is_device_present=False)
     d=Manager(gui);d.service=service;d.loaded((s,[],Catalog(s),[],[]))
-    assert '尚未选择同步列' in QLabel.text(d.status)
+    assert '尚未选择同步列' in d.status.summary  # rendered QLabel text is elided before show()
     assert not any(w.text() in ('书架 · 墨韵','白话操作流程') for w in d.findChildren(QWidget) if isinstance(w,(QLabel,QPushButton)))
     assert not any(type(w).__name__=='InkLandscape' for w in d.findChildren(QWidget))
     output=pathlib.Path(__file__).parent/'screenshots'/'ink-028';output.mkdir(parents=True,exist_ok=True)
