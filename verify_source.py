@@ -10,6 +10,11 @@ with tempfile.TemporaryDirectory(prefix='kc-clean-build-') as tmp:
         for name in z.namelist():
             if not (folder/name).resolve().is_relative_to(folder):raise AssertionError('Source path escape')
         z.extractall(folder)
+    for binary,manifest in [('kc-backup-check','check-build.json'),('kc-screen','screen-build.json'),('kc-sqlite3','sqlite-build.json')]:
+        info=json.loads((folder/'native'/manifest).read_text('utf-8-sig'))
+        host=folder/'native'/(binary+'-test.exe')
+        if hashlib.sha256(host.read_bytes()).hexdigest()!=info['host_sha256']:
+            raise AssertionError('Source host helper hash differs: '+binary)
     p=subprocess.run([sys.executable,'-e',str(folder/'build.py')],cwd=folder,
         env=dict(os.environ,CALIBRE_CONFIG_DIRECTORY=str(folder/'config')),
         stdout=subprocess.PIPE,stderr=subprocess.STDOUT)

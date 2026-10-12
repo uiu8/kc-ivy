@@ -534,6 +534,14 @@ class Pages:
             p.update(rules=value['rules'],settings=value['settings'],legacy_original=value['original'])
             self.service.state.save(self.service.key(p['library_uuid'],self.snapshot),p,p['revision']);self.preview=None;self.error('已迁移；请审阅规则再预览。')
         except Exception as e:self.error(e)
+    def environment_report(self):
+        from .mounts import resolve_mount
+        from .environment import latest_report
+        def show(report):
+            status,body=report
+            QMessageBox.information(self,'Kindle 环境检查 · '+status,body)
+        self.device_job(lambda:latest_report(resolve_mount(self.gui.device_manager)),show,'kc-ivy-kpw3 读取环境检查报告')
+
     def mtp_settings(self):
         QMessageBox.information(self,'连接与启动说明 · kc-ivy-kpw3',
             '本版本使用 USB 磁盘连接，不支持 MTP。若 Calibre 识别为 MTP，请核对设备型号并使用适合该设备的版本；本页不会改变设备连接模式。\n\n'
@@ -543,21 +551,6 @@ class Pages:
             '检查报告保存在 Kindle 的 kc-sync/logs/KC环境检查-*.txt。重连后打开最新报告；ENVIRONMENT_PASS=1 才继续。失败时保留报告并反馈，勿发送普通任务。\n'
             '环境检查通过只说明运行条件满足，编辑能力仍需六步回执确认。')
 
-    def rollback_mtp_device(self):
-        from .mtp import rollback_mtp,PREFERENCE
-        from .install import FILES
-        from calibre.utils.config import JSONConfig
-        if QMessageBox.question(self,'撤下 MTP 实验入口',
-            '仅删除核验一致的三个 -MTP 启动入口，保留原入口、运行文件、书籍、收藏夹和全部任务记录。\n'
-            '这不会撤销已经执行的收藏夹修改，也不会将 MTP 设备变成普通 USB 磁盘。\n'
-            '有未完成任务或入口内容不符时将停止；关闭开关后仍可使用此回退入口。是否继续？')!=QMessageBox.StandardButton.Yes:return
-        resources=self.gui.iactions['kc-ivy'].load_resources(['runtime/'+name for name in FILES])
-        manager=self.gui.device_manager
-        def done(count):
-            JSONConfig('plugins/kc-plus-transport')[PREFERENCE]=False
-            self.error(f'已撤下 {count} 个实验入口并关闭 MTP；原入口及全部数据保留。没有原入口的新设备需要另行安装可用的 KC。')
-        self.device_job(lambda:rollback_mtp(manager,resources),done,'kc-ivy 撤下 MTP 实验入口')
-
     def install_device(self):
         try:
             from .install import install,FILES
@@ -565,7 +558,7 @@ class Pages:
             if is_mtp(self.gui.device_manager):raise Invalid('KC ivy KPW3 仅支持 USB 磁盘安装，不支持 MTP；未写入设备')
             resources=self.gui.iactions['kc-ivy'].load_resources(['runtime/'+name for name in FILES])
             from .install import VERSION
-            detail='安装 KC 0.7.0 的 14 个运行文件、四个脚本入口和 KUAL 菜单。Kindle 必须已有脚本启动器或 KUAL；本操作不会安装它们。入口备份可用于回退，书籍、草稿、任务和回执保留。'
+            detail=f'安装 KC 0.7.0 的 {len(FILES)} 个运行文件、四个脚本入口和 KUAL 菜单。Kindle 必须已有脚本启动器或 KUAL；本操作不会安装它们。入口备份可用于回退，书籍、草稿、任务和回执保留。'
             hint='安全弹出并断开 USB 后，先运行「KC检查运行环境」，诊断通过后运行「KC刷新收藏夹」。重连读取新状态，在插件准备六步能力测试，再弹出运行「KC验证编辑能力」。重连确认六步全部通过后，才可预览并执行业务任务；从主线或旧 KC 转入时，即使已有快照，也须完成上述步骤。若只是重装相同 KC 0.7.0 且设备、固件和验证状态未变化，无须重复验证。'
             if QMessageBox.question(self,'安装 KC ivy KPW3','安装 KC '+VERSION+' 运行文件。'+detail+'\n'+hint+'\n是否安装？')!=QMessageBox.StandardButton.Yes:return
             def installed(path):

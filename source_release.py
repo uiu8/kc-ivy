@@ -19,6 +19,7 @@ names=['verify_notice123.py','verify_reliability122.py','verify_books121.py','ve
        'native/build_check.ps1','native/kc_backup_check.c','native/check-build.json',
        'native/build_sqlite.ps1','native/sqlite-build.json']
 names += ['softfloat_tests.py']
+names += ['native/kc-backup-check-test.exe','native/kc-screen-test.exe','native/kc-sqlite3-test.exe']
 names += ['verify_notice119.py','release114_tests.py','release100_tests.py','chain013_tests.py','roundtrip013_test.py','ui028_test.py','ui072_test.py','ui074_test.py']
 names += ['LICENSE','.gitignore','build.py','source_release.py']
 for name in names:files[name]=root/name

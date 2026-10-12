@@ -21,7 +21,8 @@ LIMIT = 64 * 1024 * 1024
 
 
 def enabled():
-    # The KPW3 distribution must not inherit mainline's saved MTP opt-in.
+    # This distribution has one transport policy. It must not inherit the
+    # mainline's saved MTP opt-in, even when the same Calibre profile is used.
     return False
 
 
@@ -228,7 +229,7 @@ class MTPStore(DeviceStore):
             cached[1][key] = path.ebook_digest()
         return cached[1][key]
 
-    def require_runtime(self, request):
+    def require_runtime(self, request, snapshot=None):
         if request['schema'] != 'kc-edit-request/v2': return
         from .runtime_versions import REF
         entry = self.mount / 'documents/KC执行收藏夹任务-MTP.sh'

@@ -48,7 +48,7 @@ class LifecycleUI(unittest.TestCase):
     def tearDown(self):
         self.host.busy=False;self.host.close();self.gui.close();self.db.close();self.tmp.cleanup()
     def test_scan_progress_draft_keeps_identity_and_cancelled_scan(self):
-        mount=self.root/'device';mount.mkdir();store=mount_fixture(mount,self.s);(mount/'documents').mkdir()
+        mount=self.root/'device';mount.mkdir();store=mount_fixture(mount,self.s);(mount/'documents').mkdir(exist_ok=True)
         (mount/'documents/new.mobi').write_bytes(b'new')
         old=store.snapshot();self.host.loaded((old,[],Catalog(old),[],[]));uid=old['books'][-1]['uuid']
         self.host.queue([intent('add_members','c2',dict(members=[uid]))])

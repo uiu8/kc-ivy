@@ -1,18 +1,18 @@
-# kc-ivy-kpw3 1.0.1
+# kc-ivy-kpw3 1.0.2
 
 Calibre 中整理 Kindle 收藏夹，预览后发送到 Kindle 执行，再读取结果并回填 Calibre 列。支持多归属、新建、改名、加入、移动、移除、删除收藏夹；这些操作保留书籍文件。
 
-这是与主线 kc-ivy 分开的 KPW3 soft-float 完整版本，插件版本 1.0.1，配套 KC 0.7.0。目标是 KPW3 / 5.16.2.1.1（4097470002）。项目没有真实 KPW3 设备，首次使用仍必须完成环境检查和六步能力验证；正式版 1.0.28、旧标签和旧附件不受本版本影响。项目代码采用 MIT。详见 [KPW3 使用说明](SOFTFLOAT.md)。
+这是与主线 kc-ivy 分开的 KPW3 soft-float 完整版本，插件版本 1.0.2，配套 KC 0.7.0。目标是 KPW3 / 5.16.2.1.1（4097470002）。项目没有真实 KPW3 设备，首次使用仍必须完成环境检查和六步能力验证；正式版 1.0.28、旧标签和旧附件不受本版本影响。项目代码采用 MIT。详见 [KPW3 使用说明](SOFTFLOAT.md)。
 
-交付文件为 `kc-ivy-kpw3_1.0.1.zip` 与 `kc-ivy-kpw3_1.0.1_source.zip`。此包与主线共用 Calibre 插件标识、设置和设备 kc-sync 数据目录，属于替换安装，不能同时安装两个版本。KUAL 菜单目录为 extensions/kc-ivy-kpw3。
+交付文件为 `kc-ivy-kpw3_1.0.2.zip` 与 `kc-ivy-kpw3_1.0.2_source.zip`。此包与主线共用 Calibre 插件标识、设置和设备 kc-sync 数据目录，属于替换安装，不能同时安装两个版本。KUAL 菜单目录为 extensions/kc-ivy-kpw3。
 <img width="2164" height="1397" alt="Clipboard 2026-10-09T06-13-02Z" src="https://github.com/user-attachments/assets/a9212ef0-e627-4b54-893d-f70c2033d7fa" />
 
 ## 安装
 
 1. Kindle 必须已经越狱，并具备能运行 documents 下 .sh 文件的脚本启动器或 KUAL。项目历史使用 KMC/KPM 的 KC 入口；该启动环境不由本包安装。原 Kindle Collections 不需要安装。没有可用启动器时先停止，不会自动执行 .sh。
-2. Calibre → 首选项 → 插件 → 从文件加载插件，选择 `kc-ivy-kpw3_1.0.1.zip`，重启 Calibre。
+2. Calibre → 首选项 → 插件 → 从文件加载插件，选择 `kc-ivy-kpw3_1.0.2.zip`，重启 Calibre。
 3. 连接 Kindle，确认是 USB 磁盘模式。kc-ivy-kpw3 → 设备维护 → 安装/升级配套 KC；本版本不通过 MTP 安装。
-4. 安全弹出并断开 USB，在 Kindle 运行“KC检查运行环境”（或使用 KUAL 的 KC ivy KPW3 菜单）。重连打开 kc-sync/logs 中最新环境报告；ENVIRONMENT_PASS=1 后，再弹出运行“KC刷新收藏夹”，完成后重连读取。
+4. 安全弹出并断开 USB，在 Kindle 运行“KC检查运行环境”（或使用 KUAL 的 KC ivy KPW3 菜单）。重连后在首次使用页点击“读取环境报告”（也可打开 kc-sync/logs 中最新报告）；ENVIRONMENT_PASS=1 后，再弹出运行“KC刷新收藏夹”，完成后重连读取。
 5. 在电脑端选择“准备能力测试”，选定一本已索引的书并确认；安全弹出后在 Kindle 运行“KC验证编辑能力”，重连读取六步结果。测试失败、接口不兼容或报告不是通过时，不执行普通任务；把 `kc-sync/logs` 中的脱敏报告交给维护者。
 6. 默认使用Calibre列与kc-ivy共同整理。在Calibre添加“逗号分隔、像标签一样”的多值文本列，查找名称和标题均可自定（例如 bookshelves / 我的书架），也可直接使用已有的多值文本列；重启后在同步设置选择它。审阅并导入Kindle现有归属。已有列值不要盲目覆盖；也可切换为纯kc-ivy手动整理。
 

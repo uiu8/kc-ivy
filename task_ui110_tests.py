@@ -10,7 +10,7 @@ class Screens(unittest.TestCase):
   self.calls=[];self.host=QWidget();self.host.busy=False;self.host.intents=[]
   state=SimpleNamespace(column_pending=lambda jid:False,baseline_done=lambda jid:[])
   self.host.service=SimpleNamespace(state=state)
-  for name in ['check_task','recover_task_draft','retry_task','cancel_unpublished','install_device','mtp_settings','load','probe_device','configure_rules','import_column']:
+  for name in ['check_task','recover_task_draft','retry_task','cancel_unpublished','install_device','mtp_settings','environment_report','load','probe_device','configure_rules','import_column']:
    setattr(self.host,name,lambda *args,n=name:self.calls.append((n,args)))
   self.addCleanup(self.host.close)
  def job(self,jid,confirmed=False):

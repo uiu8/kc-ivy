@@ -45,7 +45,7 @@ calibre-debug -e shell_tests.py
 
 release_check.py、verify_release.py、verify_source.py 自动读取 plugin/__init__.py 的当前版本。公开源码包只保留当前发布检查和现行功能回归测试；历史版本专用测试仍在开发工作区，不随包分发。
 
-Windows下准备Git Bash、Node.js24（node:sqlite）和SQLite3.26 CLI；设置环境变量KC_BASH、KC_NODE、KC_SQLITE_CLI为对应可执行文件绝对路径。先生成上述主机测试程序，然后运行：
+Windows下准备Git Bash、Node.js24（node:sqlite）和SQLite3.26 CLI；设置环境变量KC_BASH、KC_NODE、KC_SQLITE_CLI为对应可执行文件绝对路径。Windows 可使用源码包附带的主机测试程序，或先按上述步骤重建，然后运行：
 
 ```powershell
 calibre-debug -e release_check.py
@@ -58,7 +58,7 @@ calibre-debug -e source_release.py
 calibre-debug -e verify_source.py
 ```
 
-按照显式清单生成源码ZIP，排除工作区配置、书库、诊断、截图、运行日志和旧发布包；依赖原生测试程序需在本机重建。许可证、文档、设备文件和测试夹具一起保留。源码包根README为发行说明，非开发工作区历史记录。
+按照显式清单生成源码ZIP，排除工作区配置、书库、诊断、截图、运行日志和旧发布包；源码包附带三个 Windows 主机测试程序及构建脚本；其他平台需在本机重建。许可证、文档、设备文件和测试夹具一起保留。源码包根README为发行说明，非开发工作区历史记录。
 
 ## 重建中文字形
 

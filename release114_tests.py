@@ -43,8 +43,8 @@ class LibraryFlows(unittest.TestCase):
         s=copy.deepcopy(old);s['books']=s['books'][1:]
         s['relations']=[r for r in s['relations'] if r['book_uuid']!='b0']
         mount=self.root/'mount';mount.mkdir();store=mount_fixture(mount,s)
-        (mount/'documents').mkdir();(mount/'documents/new.azw3').write_bytes(b'new book')
-        (mount/'documents/KC执行收藏夹任务.sh').write_text('exec sh /mnt/us/kc-sync/runtime/0.6.14/run.sh')
+        (mount/'documents').mkdir(exist_ok=True);(mount/'documents/new.azw3').write_bytes(b'new book')
+        (mount/'documents/KC执行收藏夹任务.sh').write_text('exec sh /mnt/us/kc-sync/runtime/0.7.0/run.sh')
         uid=self.api.field_for('uuid',self.ids[0])
         (mount/'metadata.calibre').write_bytes(canonical([dict(uuid=uid,lpath='documents/new.azw3',title='新书')]))
         current=store.snapshot();alias=current['books'][-1]['uuid']

@@ -108,7 +108,7 @@ def first_use_dialog(host):
     content=QWidget();cards=QVBoxLayout(content);cards.setContentsMargins(0,0,8,0);cards.setSpacing(10);scroll.setWidget(content)
     steps=[
         ('01','安装配套 KC 0.7.0','通过 USB 磁盘连接已越狱的 KPW3。从主线或旧 KC 转入必须安装本包配套运行文件；仅升级电脑插件且已使用相同 KC 0.7.0 时无需重装。','安装配套 KC',host.install_device),
-        ('02','检查 Kindle 运行环境','安全弹出并断开 USB，在 Kindle 运行“KC检查运行环境”，或从 KUAL 的 KC ivy KPW3 菜单启动。重连后打开 kc-sync/logs 中最新环境报告；ENVIRONMENT_PASS=1 才继续，失败时保留报告并反馈。','连接与启动说明',host.mtp_settings),
+        ('02','在 Kindle 检查环境，再读取报告','安全弹出并断开 USB，在 Kindle 运行“KC检查运行环境”（或 KUAL 的同名菜单）。完成后重连，点击右侧读取报告。ENVIRONMENT_PASS=1 只表示环境诊断通过，仍须完成六步编辑验证。','读取环境报告',host.environment_report),
         ('03','刷新并读取收藏夹','安全弹出，在 Kindle 运行“KC刷新收藏夹”；完成后重连并读取。电脑“读取设备状态”读取已有快照，不会替 Kindle 重新生成索引。','读取设备状态',host.load),
         ('04','准备并完成六步验证','在电脑选择一本已索引书籍并准备能力测试，弹出后运行“KC验证编辑能力”，重连读取回执。六步全部确认后才开始日常任务；失败时先处理原任务。仅升级电脑插件不要求重复验证。','准备能力测试',host.probe_device),
         ('05','选择整理方式','可选专用书架列、原生标签或仅在插件手动整理；列名可自定。已有列值和收藏归属先审阅，再决定是否导入。','同步设置',host.configure_rules),

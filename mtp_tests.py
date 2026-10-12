@@ -76,7 +76,7 @@ class MTP(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         self.base=Path(self.tmp.name);self.mount=self.base/'device';self.mount.mkdir()
-        self.s=snapshot();mount_fixture(self.mount,self.s);(self.mount/'documents').mkdir()
+        self.s=snapshot();mount_fixture(self.mount,self.s);(self.mount/'documents').mkdir(exist_ok=True)
         (self.mount/'kc-sync/state/mtp.json').write_bytes(canonical(dict(schema='kc-mtp/v1',device=self.s['device'])))
         self.connect()
     def connect(self):

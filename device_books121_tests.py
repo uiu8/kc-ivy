@@ -17,7 +17,7 @@ class IndependentFiles(unittest.TestCase):
             for name in ('metadata.calibre','driveinfo.calibre'):
                 p=root/name
                 if p.exists():p.unlink()
-            folder=root/'documents';folder.mkdir()
+            folder=root/'documents';folder.mkdir(exist_ok=True)
             (folder/'outside.mobi').write_bytes(b'outside')
             (folder/'source.epub').write_bytes(b'epub')
             (folder/'assets.sdr').mkdir();(folder/'assets.sdr/asset.kfx').write_bytes(b'asset')
@@ -37,7 +37,7 @@ class IndependentFiles(unittest.TestCase):
         from plugin.planner import intent
         from tests import make_request
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);s=snapshot();mount_fixture(root,s);(root/'documents').mkdir()
+            root=Path(tmp);s=snapshot();mount_fixture(root,s);(root/'documents').mkdir(exist_ok=True)
             (root/'kc-sync/state/mtp.json').write_bytes(canonical(dict(schema='kc-mtp/v1',device=s['device'])))
             (root/'documents/other-tool.azw3').write_bytes(b'other tool book')
             driver=Driver(root);manager=SimpleNamespace(is_device_present=True,connected_device=driver)

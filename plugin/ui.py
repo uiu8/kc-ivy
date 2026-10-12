@@ -366,7 +366,7 @@ class Manager(QDialog, Pages):
             ('列值导入与回填', [('Kindle 收藏归属导入指定列',self.import_column),('回填已确认的执行结果',self.backfill_result),('校准已有书架的初始状态',self.calibrate_baseline),('从列备份恢复',self.restore_column)]),
             ('备份、迁移与分享', [('书架备份与新机迁移 / 书库分享',self.migration_center)]),
             ('旧插件迁移与其他导入', [('读取设备旧收藏文件',self.import_legacy),('导入旧 collection(s).json / .full',self.import_external_legacy),('导入原 Kindle Collections 配置',self.migrate_settings),('导入为单值文本 / 长文本 / 布尔摘要',self.import_summary)]),
-            ('设备安装与维护', [('安装 / 升级配套 KC',self.install_device),('连接与启动说明',self.mtp_settings),('准备真机编辑能力测试',self.probe_device),('撤销未执行的能力测试',self.cancel_device_probe),('恢复未完成快照',self.recover_snapshot),('恢复设备启动入口',self.rollback_device),('设备版本管理',self.runtime_manager),('空间占用与安全清理',self.storage_manager)]),
+            ('设备安装与维护', [('安装 / 升级配套 KC',self.install_device),('连接与启动说明',self.mtp_settings),('读取环境检查报告',self.environment_report),('准备真机编辑能力测试',self.probe_device),('撤销未执行的能力测试',self.cancel_device_probe),('恢复未完成快照',self.recover_snapshot),('恢复设备启动入口',self.rollback_device),('设备版本管理',self.runtime_manager),('空间占用与安全清理',self.storage_manager)]),
             ('帮助', [('首次使用',self.first_run_guide),('关于 kc-ivy-kpw3',self.about)])]
         self.column_only_buttons=[]
         for title,actions in sections:

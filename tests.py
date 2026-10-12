@@ -63,6 +63,11 @@ def mount_fixture(base, s):
     (base/'driveinfo.calibre').write_bytes(canonical(dict(device_store_uuid=s['device']['storage_uuid'])))
     (base/'kc-sync/state/device.json').write_bytes(canonical(s['device']))
     (base/'kc-sync/snapshots/latest.json').write_bytes(canonical(s))
+    from plugin.install import VERSION
+    (base/'documents').mkdir(exist_ok=True)
+    (base/'documents/KC执行收藏夹任务.sh').write_text('/mnt/us/kc-sync/runtime/'+VERSION+'/run.sh',encoding='utf8')
+    caps=dict(s['capabilities'],device=s['device'],firmware=s['firmware'].rstrip('\r\n'),runtime='kc-'+VERSION+'-softfloat')
+    (base/'kc-sync/state/capabilities.json').write_bytes(canonical(caps))
     return DeviceStore(base)
 
 
@@ -259,6 +264,33 @@ class USB(unittest.TestCase):
         self.assertEqual(self.store.receipts()[0]['job_id'],req['job_id'])
         manager.is_device_present=False
         with self.assertRaises(Invalid): connected_store(manager)
+
+    def test_kpw3_rejects_old_capabilities_and_stale_firmware(self):
+        req=make_request(self.s)
+        path=self.store.path('state/capabilities.json');good=loads(path.read_bytes())
+        for field,value in [('runtime','kc-0.6.15'),('firmware','other'),('device',dict(self.s['device'],instance_id='other')),('version','old')]:
+            bad=dict(good);bad[field]=value;path.write_bytes(canonical(bad))
+            with self.assertRaises(Invalid):self.store.send(req)
+            self.assertFalse(self.store.path('inbox/'+req['job_id']+'.json').exists())
+        path.write_bytes(canonical(good))
+        entry=self.mount/'documents/KC执行收藏夹任务.sh';entry.write_text('/mnt/us/kc-sync/runtime/0.6.15/run.sh')
+        with self.assertRaises(Invalid):self.store.send(req)
+        entry.write_text('/mnt/us/kc-sync/runtime/0.7.0/run.sh')
+        target=self.store.send(req)
+        path.unlink()
+        self.assertEqual(self.store.send(req),target)  # Verification of existing publication never resends.
+
+    def test_environment_report_requires_complete_exact_markers(self):
+        from plugin.environment import latest_report
+        self.assertEqual(latest_report(self.mount)[0],'尚无报告')
+        folder=self.store.path('logs');folder.mkdir()
+        path=folder/'KC环境检查-fixture.txt'
+        header='KC_ENVIRONMENT_V1 | KC 0.7.0 | kc-ivy-kpw3 soft-float | no native edits\n'
+        for tail in ['ENVIRONMENT_PASS=10\nRUN_FINISHED=1\n','ENVIRONMENT_PASS=1\n']:
+            path.write_text(header+tail,encoding='utf8')
+            self.assertEqual(latest_report(self.mount)[0],'未通过或报告不完整')
+        path.write_text(header+'ENVIRONMENT_PASS=1\nRUN_FINISHED=1\n',encoding='utf8')
+        self.assertEqual(latest_report(self.mount)[0],'诊断通过')
 
     def test_drive_path_change_uses_identity_not_letter(self):
         renamed=self.mount.with_name(self.mount.name+'-moved')

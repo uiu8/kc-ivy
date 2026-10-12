@@ -102,12 +102,22 @@ class DeviceStore:
             rows.append(value)
         return rows
 
-    def require_runtime(self, request):
-        if request['schema']=='kc-edit-request/v2':
-            from .runtime_versions import REF
-            entry=self.mount/'documents/KC执行收藏夹任务.sh'
-            active=[v.decode('ascii') for v in REF.findall(entry.read_bytes())] if entry.is_file() else []
-            if not active or any(tuple(map(int,v.split('.')))<(0,6,14) for v in active):raise Invalid('新书任务需要先安装配套 KC 0.6.14；已发送的旧任务不受影响')
+    def require_runtime(self, request, snapshot):
+        from .runtime_versions import REF
+        from .install import VERSION
+        entry=self.mount/'documents/KC执行收藏夹任务.sh'
+        active=[v.decode('ascii') for v in REF.findall(entry.read_bytes())] if entry.is_file() else []
+        if not active or any(v != VERSION for v in active):
+            raise Invalid('请先安装本包配套 KC '+VERSION+'，再在 Kindle 刷新并完成能力验证；未发送新任务')
+        path=self.path('state/capabilities.json')
+        if not path.is_file():
+            raise Invalid('缺少设备能力记录；请在 Kindle 刷新并完成六步能力验证')
+        caps=read(path)
+        if (caps.get('runtime') != 'kc-'+VERSION+'-softfloat' or
+                caps.get('device') != self.device or
+                caps.get('firmware') != snapshot['firmware'].rstrip('\r\n') or
+                any(caps.get(k) != snapshot['capabilities'][k] for k in ('version','verified_operations','evidence'))):
+            raise Invalid('能力记录与当前设备、固件、配套 KC 或快照不一致；请刷新状态并重新验证。未发送新任务')
 
     def send(self, request):
         validate(request)
@@ -117,7 +127,6 @@ class DeviceStore:
             raise Invalid('新书任务缺少文件描述，请重新预览')
         if request['schema'] not in ('kc-edit-request/v1','kc-edit-request/v2') or request['device'] != self.device:
             raise Invalid('任务与设备不匹配')
-        self.require_runtime(request)
         # job_id is a filename component; the protocol already forbids separators.
         if request['job_id'] in ('.', '..'):
             raise Invalid('无效任务 ID')
@@ -130,6 +139,7 @@ class DeviceStore:
                 if validate(read(target))!=request:raise Invalid('同一任务编号对应不同内容')
                 return target  # Already published; do not republish against a newer snapshot.
             snap = self.snapshot()
+            self.require_runtime(request, snap)
             if request['snapshot_digest'] != digest(snap):
                 raise Invalid('快照已更新，原 Preview 失效')
             if (request['policy_version'] != snap['policy']['version'] or
@@ -170,10 +180,8 @@ class DeviceStore:
 
 def connected_store(manager, expected_device=None):
     # Evaluate inside create_job, not before queueing: eject/drive changes can occur.
-    from .mtp import is_mtp, enabled, MTPStore
+    from .mtp import is_mtp
     if is_mtp(manager):
-        if not enabled():
-            raise Invalid('检测到 MTP 设备。kc-ivy-kpw3 只支持 USB 磁盘连接；请核对型号并使用适合该设备的版本。未发送任务，现有文件保留。')
-        return MTPStore(manager, expected_device)
+        raise Invalid('检测到 MTP 设备。kc-ivy-kpw3 只支持 USB 磁盘连接；请核对型号并使用适合该设备的版本。未发送任务，现有文件保留。')
     from .mounts import resolve_mount
     return DeviceStore(resolve_mount(manager), expected_device)

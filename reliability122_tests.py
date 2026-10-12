@@ -12,7 +12,7 @@ class DiscoveryLifecycle(unittest.TestCase):
         from mtp_tests import Driver
         from plugin.mtp import MTPStore
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);s=snapshot();mount_fixture(root,s);(root/'documents').mkdir()
+            root=Path(tmp);s=snapshot();mount_fixture(root,s);(root/'documents').mkdir(exist_ok=True)
             (root/'documents/new.mobi').write_bytes(b'book')
             driver=Driver(root);original=driver.get_mtp_file_by_name;event=threading.Event();messages=[]
             def transfer(parent,*names,stream=None,callback=None):
@@ -26,7 +26,7 @@ class DiscoveryLifecycle(unittest.TestCase):
             self.assertEqual((root/'documents/new.mobi').read_bytes(),b'book')
     def test_identity_survives_calibre_mapping_and_native_index(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);s=snapshot();store=mount_fixture(root,s);(root/'documents').mkdir()
+            root=Path(tmp);s=snapshot();store=mount_fixture(root,s);(root/'documents').mkdir(exist_ok=True)
             path=root/'documents/outside.azw3';path.write_bytes(b'content')
             old=store.snapshot();uid=old['books'][-1]['uuid'];descriptor=store.new_books[0]
             (root/'metadata.calibre').write_bytes(canonical([dict(uuid='calibre-new',lpath='documents/outside.azw3',title='New title')]))
@@ -39,7 +39,7 @@ class DiscoveryLifecycle(unittest.TestCase):
 
     def test_fast_read_and_cancel_do_not_write(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);s=snapshot();store=mount_fixture(root,s);(root/'documents').mkdir()
+            root=Path(tmp);s=snapshot();store=mount_fixture(root,s);(root/'documents').mkdir(exist_ok=True)
             (root/'documents/new.mobi').write_bytes(b'book')
             self.assertEqual(store.snapshot(scan_new=False),s);self.assertEqual(store.new_books,[])
             before={p.relative_to(root):p.read_bytes() for p in root.rglob('*') if p.is_file()}
@@ -51,7 +51,7 @@ class DiscoveryLifecycle(unittest.TestCase):
 
     def test_large_candidate_list_and_epub_exclusion(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);s=snapshot();store=mount_fixture(root,s);folder=root/'documents';folder.mkdir()
+            root=Path(tmp);s=snapshot();store=mount_fixture(root,s);folder=root/'documents';folder.mkdir(exist_ok=True)
             for i in range(1000):(folder/f'{i}.mobi').write_bytes(str(i).encode())
             (folder/'not-indexed.epub').write_bytes(b'epub')
             value=store.snapshot();self.assertEqual(len(store.new_books),1000);self.assertEqual(len(value['books']),1003)
