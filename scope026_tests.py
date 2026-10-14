@@ -64,6 +64,7 @@ class ScopeTests(unittest.TestCase):
     def test_pending_task_prevents_scope_mutation(self):
         self.m=meta({'calibre-0':['待读','文学'],'calibre-1':['待读'],'calibre-2':[]})
         value=self.preview();mount=Path(self.tmp.name)/'mount';mount.mkdir();store=mount_fixture(mount,self.s)
+        (mount/'documents/KC执行收藏夹任务.sh').write_text('/mnt/us/kc-sync/runtime/0.6.16/run.sh')
         with patch.object(self.service,'metadata',return_value=self.m):self.service.submit(None,'library',store,value,[])
         revision=self.service.state.revision(self.key)
         self.s['books'].append(dict(self.s['books'][0],uuid='copy'))

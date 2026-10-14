@@ -7,7 +7,7 @@ from .protocol import Invalid,canonical,digest
 from .transport import atomic_write
 from .mounts import resolve_mount,kc_package
 
-VERSION='0.6.15'
+VERSION='0.6.16'
 FILES=('run.sh','refresh.sh','policy.sh','export.sql','prepare-edit.sql','verify-edit.sql','validate-request.sql','backup-check.sh','kc-backup-check','mtp.sh','kc-screen')
 
 

@@ -86,6 +86,8 @@ class DeviceStore:
         value = validate(read(self.path('snapshots/latest.json')))
         if value['schema'] != 'kc-bookshelf-export/v2' or value['device'] != self.device:
             raise Invalid('快照与当前设备不匹配')
+        from .file_state import refresh_files
+        value = refresh_files(self, value)
         from .deferred import discover
         if scan_new:value,self.new_books=discover(self,value)
         else:self.new_books=[]
@@ -103,6 +105,12 @@ class DeviceStore:
         return rows
 
     def require_runtime(self, request):
+        if 'touch_collections' in request:
+            from .runtime_versions import REF
+            entry=self.mount/'documents/KC执行收藏夹任务.sh'
+            active=[v.decode('ascii') for v in REF.findall(entry.read_bytes())] if entry.is_file() else []
+            if not active or any(tuple(map(int,v.split('.')))<(0,6,16) for v in active):
+                raise Invalid('请先安装本包配套 KC 0.6.16，再发送；原任务和回执保留')
         if request['schema']=='kc-edit-request/v2':
             from .runtime_versions import REF
             entry=self.mount/'documents/KC执行收藏夹任务.sh'

@@ -9,15 +9,19 @@ def available_books(snapshot,metadata):
             if (kept:=[bid for bid in ids if bid in allowed])}
 
 
-def expand(snapshot,metadata,profile):
+def expand(snapshot,metadata,profile,selected_only=False):
     assert_library(snapshot,profile['library_uuid'],metadata)
     available=available_books(snapshot,metadata)
+    present={b['uuid'] for b in snapshot['books']}
     bases=dict(profile['column_baseline']);count=0
     for row in metadata['rows']:
         uid=row['uuid'];ids=available.get(uid,[])
         old=bases.get(uid)
+        if selected_only and (not old or len(old['copies'])!=1 or len(ids)!=1 or set(old['copies'])&set(ids)):
+            continue
         if old:
-            kept=[bid for bid in old['copies'] if not bid.startswith('kc-new-') or bid in ids]
+            kept=[bid for bid in old['copies'] if (not bid.startswith('kc-new-') or bid in ids)
+                  and (not ids or bid in present)]
             if kept!=old['copies']:
                 old=dict(old,copies=kept,pending_copies={bid:n for bid,n in old.get('pending_copies',{}).items() if bid in kept})
                 bases[uid]=old;count+=1

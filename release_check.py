@@ -25,12 +25,12 @@ def suite(names):
 def main():
     if not run('build',['-e','build.py']):return False
     if not run('install',['-a','dist/kc-ivy_'+VERSION+'.zip'],customize):return False
-    core=['reliability122_tests','device_books121_tests','repair118_tests','tests','workflow_tests','baseline_tests','settings_tests','scope026_tests','chain013_tests',
+    core=['device_refresh_tests.Refresh','reliability122_tests','device_books121_tests','repair118_tests','tests','workflow_tests','baseline_tests','settings_tests','scope026_tests','chain013_tests',
           'task_recovery017_tests','retention021_tests','usability020_tests','install_detection_tests',
           'migration_share_tests','mtp_tests.MTP','release100_tests','runtime_versions_tests','maintenance108_tests',
           'native_columns109_tests.NativeTags','deferred_tests.Discovery','deferred_tests.Roundtrip','deferred_tests.CalibreNewBook','release114_tests']
     with ThreadPoolExecutor(max_workers=2) as pool:
-        checks=[pool.submit(run,'core',suite(core)),pool.submit(run,'native',suite(['executor_tests','mtp_tests.ShellHandoff','deferred_tests.DeferredExecutor','screen_progress_tests','screen_card_tests']))]
+        checks=[pool.submit(run,'core',suite(core)),pool.submit(run,'native',suite(['device_refresh_tests.RecencyExecutor','executor_tests','mtp_tests.ShellHandoff','deferred_tests.DeferredExecutor','screen_progress_tests','screen_card_tests']))]
         passed=all([c.result() for c in checks])
     for script in ['verify_notice123.py','verify_reliability122.py','verify_books121.py','verify_notice119.py','verify_column117.py','calibre_workflow_tests.py','roundtrip013_test.py','shell_tests.py','ui028_test.py','ui072_test.py','ui074_test.py','task_ui110_tests.py','verify_ui114.py','verify_ui115.py','verify_release.py']:
         passed=run(Path(script).stem,['-e',script]) and passed

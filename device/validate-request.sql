@@ -5,8 +5,9 @@ INSERT INTO valid_json SELECT json_valid(body) FROM req;
 CREATE TEMP TABLE invalid(reason TEXT);
 INSERT INTO invalid SELECT 'duplicate JSON key' FROM req,json_tree(req.body) j WHERE j.key IS NOT NULL GROUP BY j.parent,j.key HAVING count(*)>1;
 INSERT INTO invalid SELECT 'request fields' FROM req WHERE
- (SELECT count(*) FROM json_each(body))<>CASE json_extract(body,'$.schema') WHEN 'kc-edit-request/v2' THEN 12 ELSE 11 END OR EXISTS(SELECT 1 FROM json_each(body) WHERE key NOT IN
- ('schema','job_id','plan_id','plan_digest','device','library_uuid','snapshot_digest','policy_version','capabilities_version','operations','request_digest','new_books'));
+ (SELECT count(*) FROM json_each(body))<>CASE json_extract(body,'$.schema') WHEN 'kc-edit-request/v2' THEN 12 ELSE 11 END + CASE WHEN json_type(body,'$.touch_collections') IS NULL THEN 0 ELSE 1 END OR EXISTS(SELECT 1 FROM json_each(body) WHERE key NOT IN
+ ('schema','job_id','plan_id','plan_digest','device','library_uuid','snapshot_digest','policy_version','capabilities_version','operations','request_digest','new_books','touch_collections'));
+INSERT INTO invalid SELECT 'collection order option' FROM req WHERE json_type(body,'$.touch_collections') IS NOT NULL AND json_type(body,'$.touch_collections') NOT IN ('true','false');
 INSERT INTO invalid SELECT 'schema' FROM req WHERE json_extract(body,'$.schema') NOT IN('kc-edit-request/v1','kc-edit-request/v2');
 INSERT INTO invalid SELECT 'header types' FROM req WHERE
  json_type(body,'$.operations') IS NOT 'array' OR json_array_length(body,'$.operations') NOT BETWEEN 1 AND 20000

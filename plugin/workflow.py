@@ -216,7 +216,8 @@ def prepare(snapshot,metadata,profile,manual=(),include_sources=True,resolutions
             issues.append('全局保护名称规则阻止修改：'+name)
     inputs=dict(metadata=metadata['fingerprint'],profile_revision=profile['revision'],manual=list(manual),include_sources=include_sources)
     if resolutions:inputs['resolutions']=resolutions
-    preview=plan(snapshot,intents,scope,profile['library_uuid'],inputs)
+    preview=plan(snapshot,intents,scope,profile['library_uuid'],inputs,
+                 touch_collections=p['settings'].get('touch_collections',True))
     return dict(plan=preview,effects=effects,inputs=inputs,issues=issues,warnings=warnings,conflicts=conflicts,
                 submitted={uid:row['fields'].get(profile['field'],[]) for uid,row in rows.items()},
                 snapshot=snapshot,profile_key=None)

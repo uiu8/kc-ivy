@@ -16,7 +16,7 @@ with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as tmp:
  s=snapshot();library=str(db.library_id)
  for b,i in zip(s['books'],ids):b['calibre_uuid']=api.field_for('uuid',i)
  svc=Service(root/'private');svc.adopt(api,library,s,'#shelf',mappings(s,read_metadata(api,['#shelf'])['rows']))
- mount=root/'mount';mount.mkdir();store=mount_fixture(mount,s)
+ mount=root/'mount';mount.mkdir();store=mount_fixture(mount,s);(mount/'documents/KC执行收藏夹任务.sh').write_text('/mnt/us/kc-sync/runtime/0.6.16/run.sh')
  manual=[intent('add_members','c2',dict(members=['b0']))]
  value=svc.preview(api,library,s,manual);jid=svc.submit(api,library,store,value,manual);job=svc.state.job(jid)
  svc.receive(library,s,[receipt(job['request'])])

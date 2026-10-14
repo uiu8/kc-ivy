@@ -161,6 +161,8 @@ SCHEMAS = {
 }
 
 # Version 1 remains byte-compatible for already indexed books.
+for name in ('kc-edit-plan/v1','kc-edit-request/v1'):
+    SCHEMAS[name]['properties']['touch_collections']=BOOL
 SCHEMAS['kc-edit-request/v2']=deepcopy(SCHEMAS['kc-edit-request/v1'])
 SCHEMAS['kc-edit-request/v2']['properties'].update(schema=dict(const='kc-edit-request/v2'),new_books=arr(obj(alias=ID,location=TEXT,size=INTEGER,sha256=HASH)))
 SCHEMAS['kc-edit-request/v2']['required'].append('new_books')
@@ -193,7 +195,7 @@ def check(spec, value, path='$'):
     if kind and type(value) is not types[kind]:
         raise Invalid(path + ': 类型错误')
     if kind == 'object':
-        if set(value) != set(spec['required']):
+        if not set(spec['required']) <= value.keys() <= spec['properties'].keys():
             raise Invalid(path + ': 缺失字段或出现未知字段')
         for key, val in value.items():
             check(spec['properties'][key], val, path + '.' + key)
@@ -261,9 +263,11 @@ def compile_check(spec):
     if kind == 'object':
         fields = [(k,compile_check(s)) for k,s in spec['properties'].items()]
         keys = spec['properties'].keys()
+        required = set(spec['required'])
         def check_object(value):
-            if type(value) is not dict or value.keys() != keys: raise Invalid('对象缺失字段或包含未知字段')
+            if type(value) is not dict or not required <= value.keys() <= keys: raise Invalid('对象缺失字段或包含未知字段')
             for field,fn in fields:
+                if field not in value:continue
                 try: fn(value[field])
                 except Invalid as exc: raise Invalid(field + ': ' + str(exc)) from exc
         return check_object

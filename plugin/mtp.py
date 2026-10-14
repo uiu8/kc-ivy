@@ -229,6 +229,12 @@ class MTPStore(DeviceStore):
         return cached[1][key]
 
     def require_runtime(self, request):
+        if 'touch_collections' in request:
+            from .runtime_versions import REF
+            entry=self.mount/'documents/KC执行收藏夹任务-MTP.sh'
+            active=[v.decode('ascii') for v in REF.findall(entry.read_bytes())] if entry.is_file() else []
+            if not active or any(tuple(map(int,v.split('.')))<(0,6,16) for v in active):
+                raise Invalid('请先安装本包配套 KC 0.6.16 的 MTP 入口，再发送')
         if request['schema'] != 'kc-edit-request/v2': return
         from .runtime_versions import REF
         entry = self.mount / 'documents/KC执行收藏夹任务-MTP.sh'

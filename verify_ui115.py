@@ -20,6 +20,19 @@ app.setFont(QFont('Microsoft YaHei',10))
 out=Path('dist/release-1.0.15');out.mkdir(parents=True,exist_ok=True)
 
 class Settings(unittest.TestCase):
+    def test_recent_order_preference_persists_in_manual_mode(self):
+        from qt.core import QCheckBox
+        def choose(d):
+            box=d.findChild(QCheckBox,'touch_collections')
+            self.assertTrue(box.isChecked());box.setChecked(False)
+            mode=d.findChild(QComboBox,'sync_mode');mode.setCurrentIndex(mode.findData('manual'))
+            self.save(d)
+        self.dialog(choose)
+        persisted=Service(self.root/'state').profile(str(self.db.library_id),self.s)
+        self.assertFalse(persisted['settings']['touch_collections'])
+        def reopened(d):self.assertFalse(d.findChild(QCheckBox,'touch_collections').isChecked())
+        self.dialog(reopened)
+
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
         db=LibraryDatabase(str(self.root/'library'))

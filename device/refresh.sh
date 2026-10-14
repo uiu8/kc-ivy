@@ -1,5 +1,5 @@
 #!/bin/sh
-# KC 0.6.15: complete readonly snapshot; NO /change calls from this entrypoint.
+# KC 0.6.16: complete readonly snapshot; NO /change calls from this entrypoint.
 set -eu
 umask 077
 DB='/var/local/cc.db'

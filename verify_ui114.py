@@ -15,6 +15,27 @@ from tests import snapshot
 app=Application([])
 
 class Contexts(unittest.TestCase):
+    def test_automatic_delete_then_upload_preserves_unsent_draft(self):
+        from tests import mount_fixture
+        from plugin.protocol import canonical
+        self.s['mapping']['calibre_library_uuid']=str(self.a.library_id)
+        mount=self.root/'mount';mount.mkdir();store=mount_fixture(mount,self.s)
+        self.manager.intents=[intent('add_members','c2',dict(members=['b0']))]
+        self.manager.persist_draft();self.manager.scan_new.setChecked(True)
+        def refresh():
+            with patch('calibre_plugins.kc_plus.ui.connected_store',return_value=store):
+                self.manager.load(automatic=True)
+                fn,done=self.jobs.pop();done(SimpleNamespace(failed=False,result=fn()))
+                app.processEvents()
+        (mount/self.s['books'][0]['location'][len('/mnt/us/'):]).unlink()
+        refresh()
+        self.assertEqual(self.manager.intents[0]['args']['members'],['b0'])
+        (mount/'documents/new.kfx').write_bytes(b'new format')
+        (mount/'metadata.calibre').write_bytes(canonical([dict(uuid='calibre-0',lpath='documents/new.kfx')]))
+        refresh()
+        self.assertTrue(self.manager.intents[0]['args']['members'][0].startswith('kc-new-'))
+        self.assertFalse(self.manager.preview_ready)
+
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
         self.a=LibraryDatabase(str(self.root/'a'));self.b=LibraryDatabase(str(self.root/'b'))

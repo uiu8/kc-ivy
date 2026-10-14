@@ -17,7 +17,7 @@ names=['verify_notice123.py','verify_reliability122.py','verify_books121.py','ve
        'native/build_screen.ps1','native/kc_screen.c','native/screen_glyphs.h','native/generate_screen_glyphs.py','native/screen-font.json','native/screen-build.json',
        'native/build_check.ps1','native/kc_backup_check.c','native/check-build.json']
 names += ['verify_notice119.py','release114_tests.py','release100_tests.py','chain013_tests.py','roundtrip013_test.py','ui028_test.py','ui072_test.py','ui074_test.py']
-names += ['LICENSE','.gitignore','build.py','source_release.py']
+names += ['LICENSE','.gitignore','build.py','source_release.py','device_refresh_tests.py']
 for name in names:files[name]=root/name
 files['README.md']=root/'release/README.md'
 tree=ast.parse((root/'plugin/__init__.py').read_text(encoding='utf8'))
@@ -27,6 +27,8 @@ out=root/('dist/kc-ivy_'+version+'_source.zip');manifest={}
 with ZipFile(out,'w',ZIP_DEFLATED) as z:
     for name,path in sorted(files.items()):
         data=path.read_bytes()
+        if path.suffix in ('.py','.txt','.json','.md','.sql','.sh','.svg','.c','.h','.ps1','.mjs') or name in ('LICENSE','.gitignore'):
+            data=data.replace(b'\r\n',b'\n')
         if name=='README.md':
             # Root README is release/README.md: every relative release doc link moves under release/.
             text=re.sub(r'\]\(([^()/:#\s]+\.md)\)',lambda m:f'](release/{m.group(1)})' if (root/'release'/m.group(1)).is_file() else m.group(0),data.decode('utf8'))

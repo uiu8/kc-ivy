@@ -19,7 +19,7 @@ REPORT="$ROOT/logs/KC运行结果-$(date +%Y%m%d-%H%M%S)-$$.txt"
 (set -C; : > "$REPORT") 2>/dev/null || { echo 'Cannot create KC run report; stopped'; exit 4; }
 printf 'KC 运行报告：%s\n' "$REPORT"
 exec >> "$REPORT" 2>&1
-printf 'KC 0.6.15 | mode=%s\n运行中；只有末尾的结果才表示本次运行已结束。\n' "$MODE"
+printf 'KC 0.6.16 | mode=%s\n运行中；只有末尾的结果才表示本次运行已结束。\n' "$MODE"
 date
 # Experimental screen feedback: Chinese cards with ASCII fallback; never stop the Kindle UI/services.
 SCREEN=0
@@ -292,7 +292,7 @@ prepare() {
     S_OP=$(sq "$OP")
     {
         printf '.timeout 1500\n'
-        printf "CREATE TEMP TABLE context(body TEXT); INSERT INTO context VALUES(json_object('operation',json('%s'),'policy',json('%s'),'book_bindings',json('%s')));\n" "$S_OP" "$S_POLICY" "$(sq "$BINDINGS")"
+        printf "CREATE TEMP TABLE context(body TEXT); INSERT INTO context VALUES(json_object('operation',json('%s'),'policy',json('%s'),'book_bindings',json('%s'),'touch_collections',%s));\n" "$S_OP" "$S_POLICY" "$(sq "$BINDINGS")" "$TOUCH_COLLECTIONS"
         cat "$DIR/prepare-edit.sql"
     } | sqlite3 -batch -bail -readonly "$DB" > "$LOCK/prepared.json"
     # Serialized states contain escaped newlines, so each value occupies one line.
@@ -368,6 +368,15 @@ verify_pending() {
             { IFS= read -r OBSERVED_STATE; IFS= read -r CHECK; IFS= read -r WANT; } < "$LOCK/observed-fields.txt" || return 1
             OBSERVED_HASH=$(hash_state "$OBSERVED_STATE")
             if [ "$CHECK" = 1 ] && [ "$OBSERVED_HASH" = "$WANT" ]; then
+                TOUCH_TIME=$(json_file_field "$ROOT/state/pending.json" '$.prepared.touch_time')
+                if [ -n "$TOUCH_TIME" ]; then
+                    TOUCH_CID=$(json_file_field "$ROOT/state/pending.json" '$.operation.collection_uuid')
+                    TOUCH_OK=$(sqlite3 -batch -bail -readonly "$DB" "SELECT p_lastAccess >= $TOUCH_TIME FROM Entries WHERE p_uuid='$(sq "$TOUCH_CID")' AND p_type='Collection';") || return 1
+                    if [ "$TOUCH_OK" != 1 ]; then
+                        tries=$((tries+1)); [ "$tries" -gt 5 ] || sleep 1
+                        continue
+                    fi
+                fi
                 verify_files || return 1
                 [ "$FILE_OK" -ne 1 ] || return 0
             fi
@@ -471,6 +480,12 @@ for INPUT in "$ROOT/inbox"/*.json; do
         sync
     fi
     [ ! -e "$JOB_DIR/progress.json.partial" ] || { echo 'Interrupted progress publication'; exit 4; }
+    TOUCH_COLLECTIONS=$(scalar "SELECT coalesce(json_extract(CAST(readfile('$(sq "$JOB_DIR/request.json")') AS TEXT),'$.touch_collections'),0);")
+    if [ "$TOUCH_COLLECTIONS" = 1 ]; then
+        sqlite3 -batch -bail -readonly "$DB" 'SELECT p_lastAccess FROM Entries LIMIT 0;' || {
+            echo '当前设备无法核验收藏夹最近使用时间；未执行新修改。'; exit 4;
+        }
+    fi
     resolve_books
     COUNT=$(scalar "SELECT json_array_length(CAST(readfile('$(sq "$JOB_DIR/request.json")') AS TEXT),'$.operations');")
     INDEX=0

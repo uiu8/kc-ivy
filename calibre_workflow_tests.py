@@ -23,7 +23,7 @@ with tempfile.TemporaryDirectory(prefix='.ct-',dir=ROOT.parents[1]) as temp:
     api.set_field('#shelf',{ids[0]:['待读'],ids[1]:['待读']})
     s=snapshot();library=str(db.library_id)
     for b,i in zip(s['books'],ids):b['calibre_uuid']=api.field_for('uuid',i)
-    mount=root/'mount';mount.mkdir();store=mount_fixture(mount,s)
+    mount=root/'mount';mount.mkdir();store=mount_fixture(mount,s);(mount/'documents/KC执行收藏夹任务.sh').write_text('/mnt/us/kc-sync/runtime/0.6.16/run.sh')
     svc=Service(root/'private');m=read_metadata(api,['#shelf'])
     p=svc.adopt(api,library,s,'#shelf',mappings(s,m['rows']))
     checks.append('real Calibre UUID adoption and bulk metadata')

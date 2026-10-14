@@ -89,8 +89,24 @@ def draft_book_bindings(old,new,store):
     bypath=defaultdict(list)
     for book in new['books']:bypath[book.get('location')].append(book)
     descriptors={d['location']:d for d in getattr(store,'new_books',[])};result={}
+    missing={b['uuid'] for b in getattr(store,'missing_books',[])}
+    if not getattr(store,'experimental_mtp',False):
+        from .file_state import refresh_files
+        # Saved draft anchors may predate the latest native export.
+        refresh_files(store,dict(old,relations=old.get('relations',[])))
+        missing.update(b['uuid'] for b in store.missing_books)
     for book in old['books']:
-        if not pending(book['uuid']):continue
+        if not pending(book['uuid']):
+            # Carry an unsent intent to a replacement only with a unique
+            # Calibre UUID in the same library, never by title or book number.
+            if book['uuid'] not in missing or not book.get('calibre_uuid') or book['metadata_matches']!=1:continue
+            if not old['mapping']['stable']:continue
+            if old['mapping']['calibre_library_uuid']!=new['mapping']['calibre_library_uuid']:continue
+            originals=[b for b in old['books'] if b.get('calibre_uuid')==book['calibre_uuid']]
+            targets=[b for b in new['books'] if b.get('calibre_uuid')==book['calibre_uuid'] and b['metadata_matches']==1]
+            if len(originals)==len(targets)==1 and new['mapping']['stable']:
+                result[book['uuid']]=targets[0]['uuid']
+            continue
         matches=bypath.get(book.get('location'),[])
         if len(matches)!=1:continue
         target=matches[0]
@@ -104,6 +120,14 @@ def draft_book_bindings(old,new,store):
             d=dict(location=location,sha256=file_digest(path))
         if book['uuid'] in previous_aliases(old,book,d):result[book['uuid']]=target['uuid']
     return result
+
+
+def draft_anchors(snapshot,previous,intents):
+    """Keep unresolved identities across delete -> refresh -> upload."""
+    wanted={u for op in intents for u in op['args'].get('members',[])}
+    books={b['uuid']:b for b in (previous or {}).get('books',[]) if b['uuid'] in wanted}
+    books.update({b['uuid']:b for b in snapshot['books']})
+    return dict(device=snapshot['device'],mapping=snapshot['mapping'],books=list(books.values()))
 
 def extend_request(request,descriptors):
     wanted={u for op in request['operations'] for u in op['args'].get('members',[]) if pending(u)}

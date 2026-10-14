@@ -86,9 +86,9 @@ class Service:
             raise Invalid('有未完成的列回填，请先读取设备结果或恢复回填，再生成新任务')
         p=self.profile(library,snapshot); m=self.metadata(api,p)
         from .usability import uses_column
-        if uses_column(p) and p.get('scope_mode','selected')=='all':
+        if uses_column(p):
             from .scope import expand
-            expanded,count=expand(snapshot,m,p)
+            expanded,count=expand(snapshot,m,p,selected_only=p.get('scope_mode','selected')!='all')
             if count:
                 key=self.key(library,snapshot)
                 if any(j['status'] not in ('complete','closed') for j in self.state.job_summaries(key)):
@@ -168,6 +168,7 @@ class Service:
         req=request(prepared['plan'],snap,digest(current))
         from .deferred import extend_request
         req=extend_request(req,getattr(store,'new_books',[]))
+        store.require_runtime(req)
         job={k:v for k,v in prepared.items() if k!='plan'}
         job.update(request=req,status='staged',column_field=p['field'] if uses_column(p) else '')
         self.state.stage(key,job)  # durable before the USB write

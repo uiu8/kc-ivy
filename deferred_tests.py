@@ -10,7 +10,7 @@ class Discovery(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);s=snapshot();store=mount_fixture(root,s)
             (root/'driveinfo.calibre').write_bytes(canonical(dict(device_store_uuid='store-1',last_library_uuid='library')))
-            (root/'documents').mkdir();book=root/'documents/new.azw3';book.write_bytes(b'new book')
+            (root/'documents').mkdir(exist_ok=True);book=root/'documents/new.azw3';book.write_bytes(b'new book')
             (root/'metadata.calibre').write_bytes(canonical([dict(uuid='new-calibre',lpath='documents/new.azw3',title='New book')]))
             value,descriptors=discover(store,s)
             self.assertEqual(len(value['books']),4);self.assertEqual(value['books'][-1]['calibre_uuid'],'new-calibre')
@@ -33,7 +33,7 @@ class Discovery(unittest.TestCase):
     def test_unindexed_epub_is_not_a_pending_book(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);s=snapshot();store=mount_fixture(root,s)
-            (root/'documents').mkdir();(root/'documents/source.epub').write_bytes(b'epub')
+            (root/'documents').mkdir(exist_ok=True);(root/'documents/source.epub').write_bytes(b'epub')
             (root/'metadata.calibre').write_bytes(canonical([dict(uuid='epub-source',lpath='documents/source.epub',title='Source')]))
             value,descriptors=discover(store,s)
             self.assertEqual(value,s);self.assertEqual(descriptors,[])
@@ -119,8 +119,8 @@ class CalibreNewBook(unittest.TestCase):
                 s=snapshot();s['books']=[];s['relations']=[];s['mapping']['calibre_library_uuid']=library
                 mount=root/'mount';mount.mkdir();store=mount_fixture(mount,s)
                 (mount/'driveinfo.calibre').write_bytes(canonical(dict(device_store_uuid='store-1',last_library_uuid=library)))
-                (mount/'documents').mkdir();(mount/'documents/new.azw3').write_bytes(b'book')
-                launcher=mount/'documents/KC执行收藏夹任务.sh';launcher.write_text('#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/0.6.14/run.sh')
+                (mount/'documents').mkdir(exist_ok=True);(mount/'documents/new.azw3').write_bytes(b'book')
+                launcher=mount/'documents/KC执行收藏夹任务.sh';launcher.write_text('#!/bin/sh\nexec sh /mnt/us/kc-sync/runtime/0.6.16/run.sh')
                 (mount/'metadata.calibre').write_bytes(canonical([dict(uuid=uid,lpath='documents/new.azw3',title='新书')]))
                 current=store.snapshot();alias=current['books'][0]['uuid'];svc=Service(root/'private')
                 svc.adopt(api,library,current,'tags',{uid:[alias]});manual=[intent('add_members','c2',dict(members=[alias]))]

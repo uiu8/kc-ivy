@@ -199,6 +199,21 @@ class KCPlusAction(InterfaceAction):
         self.qaction.setMenu(menu)
         device_signals.device_metadata_available.connect(self.metadata_ready)
         device_signals.device_connection_changed.connect(self.connection_changed)
+        from weakref import WeakSet
+        self._seen_file_jobs=WeakSet()
+        self._file_refresh=QTimer(self.gui);self._file_refresh.setSingleShot(True)
+        self._file_refresh.setInterval(250);self._file_refresh.timeout.connect(self.metadata_ready)
+        self.gui.job_manager.job_done.connect(self.device_jobs_done)
+    def device_jobs_done(self,*args):
+        from .file_state import device_file_job
+        changed=False
+        for job in self.gui.job_manager.jobs:
+            if job in self._seen_file_jobs or not job.is_finished:continue
+            self._seen_file_jobs.add(job)
+            if device_file_job(job,self.gui.device_manager):changed=True
+        # Failed device operations may have partially removed files too. The
+        # serialized scan checks actual existence after Calibre's callbacks.
+        if changed:self._file_refresh.start()
     def ensure_window(self):
         if self.window is not None and not self.window.same_library():
             self.window.retire()
@@ -542,7 +557,7 @@ class Manager(QDialog, Pages):
         timer=None
         if read_progress:
             self._scan_event=threading.Event();self._scan_message='正在读取设备快照…'
-            self._scan_full=not automatic and self.scan_new.isChecked()
+            self._scan_full=self.scan_new.isChecked()
             self.read_message.setText(self._scan_message);self.cancel_read.setEnabled(True)
             self.read_feedback.setVisible(not automatic)
             def update_progress():
@@ -592,23 +607,18 @@ class Manager(QDialog, Pages):
 
     def load(self,checked=False,automatic=False):
         if not self.same_library():return
-        # Keep an unseen draft intact; opening the manager performs a full read.
-        if automatic and self.intents:return
         if self.busy:self.reload_requested=True;return
         if self.intents:
             self.preview=None; self.update_buttons()
-            old=self.snapshot
+            from .deferred import draft_anchors
+            saved=self.service.state.draft(self.service.key(self.library_id,self.snapshot)) if self.service else None
+            old=draft_anchors(self.snapshot,(saved or {}).get('book_anchors'),self.intents)
             def append_books():
                 store=connected_store(self.gui.device_manager);value=self.read_snapshot(store)
-                if value['device']!=old['device'] or value['collections']!=old['collections'] or value['relations']!=old['relations'] or value['capabilities']!=old['capabilities'] or value['policy']!=old['policy']:
-                    raise Invalid('设备收藏状态已变化；请先保存或放弃草稿，再重新读取')
-                current={b['uuid']:b for b in value['books']}
-                from .deferred import draft_book_bindings,pending
+                if value['device']!=old['device']:
+                    raise Invalid('设备已改变；原草稿已保留，请连接原设备')
+                from .deferred import draft_book_bindings
                 mapping=draft_book_bindings(old,value,store)
-                for b in old['books']:
-                    target=current.get(mapping.get(b['uuid'],b['uuid']))
-                    if target!=b and not (pending(b['uuid']) and target and target['location']==b['location'] and (b['uuid'] in mapping or target['uuid']==b['uuid'])):
-                        raise Invalid('已有书籍状态已变化，请先处理草稿再读取')
                 return value,mapping
             def appended(result):
                 value,mapping=result
@@ -617,8 +627,7 @@ class Manager(QDialog, Pages):
                 self.resolutions={};self.prepared=None;self.preview_ready=False
                 self.snapshot=value;self.catalog=Catalog(value);self.browse()
                 self.render_drafts();self.persist_draft()
-                added=len(value['books'])-len(old['books'])
-                self.status.setText(f'已发现 {added} 本新增书籍，原草稿保留；请重新生成预览。' if added else '未发现新增书籍，原草稿保留。')
+                self.status.setText('已自动更新设备文件状态，原草稿保留；能唯一匹配的替换文件已关联，请重新预览。')
             self.device_job(append_books,appended,'读取新传入书籍',read_progress=True)
             return
         manager=self.gui.device_manager
@@ -626,7 +635,8 @@ class Manager(QDialog, Pages):
             store=connected_store(manager)
             snapshot=self.read_snapshot(store)
             receipts=store.receipts()
-            messages=[]
+            missing=getattr(store,'missing_books',[])
+            messages=([f'已自动更新：{len(missing)} 个原设备文件已不存在，已从本次整理视图移除；设备执行时核验原生收藏状态。'] if missing else [])
             changed=[]
             if self.service:
                 key=self.service.key(self.library_id,snapshot);saved=self.service.state.draft(key)
@@ -637,7 +647,8 @@ class Manager(QDialog, Pages):
                         for op in saved['intents']:
                             if 'members' in op['args']:op['args']['members']=[mapping.get(u,u) for u in op['args']['members']]
                         saved['resolutions']={};self.service.state.save_draft(key,saved)
-                _,messages=self.service.receive(self.library_id,snapshot,receipts)
+                _,received_messages=self.service.receive(self.library_id,snapshot,receipts)
+                messages.extend(received_messages)
                 changed,notes=self.service.backfill_confirmed(self.library_db.new_api,self.library_id,snapshot)
                 messages.extend(notes)
                 repaired=self.service.state.reconcile_pending(self.service.key(self.library_id,snapshot),snapshot,getattr(store,'new_books',[]))
@@ -1098,8 +1109,11 @@ class Manager(QDialog, Pages):
         key=self.service.key(self.library_id,self.snapshot)
         # Staging a task clears its draft transactionally. Do not resurrect it on close.
         if self.intents and any(j.get('inputs',{}).get('manual')==self.intents for j in self.service.state.jobs(key) if j['status']=='staged'):return
+        from .deferred import draft_anchors
+        saved=self.service.state.draft(key)
+        anchors=draft_anchors(self.snapshot,(saved or {}).get('book_anchors'),self.intents)
         self.service.state.save_draft(key,dict(intents=self.intents,scope=sorted(self.scope),resolutions=self.resolutions,
-            issues=self.issues,snapshot_digest=digest(self.snapshot),book_anchors=dict(device=self.snapshot['device'],mapping=self.snapshot['mapping'],books=[b for b in self.snapshot['books'] if b['uuid'].startswith('kc-new-')])) )
+            issues=self.issues,snapshot_digest=digest(self.snapshot),book_anchors=anchors))
 
     def restore_saved_draft(self):
         if not self.service or not self.snapshot:return

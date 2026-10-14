@@ -32,6 +32,8 @@ if refresh.exists() and refresh.read_bytes()!=raw:
     raise ValueError('Existing runtime release differs; increment runtime version before rebuilding')
 if not refresh.exists():refresh.write_bytes(raw)
 def put(z,name,data):
+    if pathlib.PurePosixPath(name).suffix in ('.py','.txt','.json','.md','.sql','.sh','.svg') or name=='LICENSE':
+        data=data.replace(b'\r\n',b'\n')
     info=ZipInfo(name,(2026,10,7,0,0,0));info.compress_type=ZIP_DEFLATED
     info.external_attr=0o100644<<16;z.writestr(info,data)
 

@@ -9,6 +9,7 @@ from uuid import uuid4
 from .protocol import Invalid, checkpoint
 
 DEFAULT_SETTINGS=dict(ignore_case=False,ignore_all=[],keep_kindle_only=True,
+    touch_collections=True,
     ignore_prefix_suffix=False,reset_collection_times=False,fast_reboot=False,
     default_action='preview',auto_receive=True,auto_backfill=False,
     comparison='device',model='automatic',cover_mode='titles')

@@ -44,7 +44,7 @@ class Plan:
         return not self.data['blockers']
 
 
-def plan(snapshot, intents, scope, library_uuid, inputs=None):
+def plan(snapshot, intents, scope, library_uuid, inputs=None, touch_collections=None):
     """Intent args are semantic only. No implicit deletion from absent sources.
 
     Each scope is explicitly adopted. Own confirmed predecessors advance the
@@ -154,6 +154,8 @@ def plan(snapshot, intents, scope, library_uuid, inputs=None):
         snapshot_digest=digest(snapshot), inputs_digest=digest(inputs if inputs is not None else intents),
         policy_version=snapshot['policy']['version'], capabilities_version=snapshot['capabilities']['version'],
         scope=sorted(authorized), operations=ops, blockers=blockers), 'plan_digest')
+    if touch_collections is not None:
+        value=seal(dict(value,touch_collections=touch_collections),'plan_digest')
     validate(value)
     return Plan(canonical(value))
 
@@ -184,4 +186,6 @@ def request(plan_value, current_snapshot, current_inputs_digest):
         plan_digest=p['plan_digest'], device=p['device'], library_uuid=p['library_uuid'],
         snapshot_digest=p['snapshot_digest'], policy_version=p['policy_version'],
         capabilities_version=p['capabilities_version'], operations=p['operations']), 'request_digest')
+    if 'touch_collections' in p:
+        value=seal(dict(value,touch_collections=p['touch_collections']),'request_digest')
     return validate(value)

@@ -44,6 +44,9 @@ CREATE TEMP TABLE states AS SELECT
  CASE WHEN (SELECT kind FROM op)='delete_collection' THEN 'null' ELSE json_object('members',json((SELECT json_group_array(uuid) FROM(SELECT coalesce(a.alias,m.uuid) uuid FROM target m LEFT JOIN aliases a ON a.uuid=m.uuid ORDER BY 1))),
  'name',CASE WHEN (SELECT kind FROM op) IN('create_collection','rename_collection') THEN (SELECT name FROM op) ELSE (SELECT name FROM current_collection) END) END after_json;
 CREATE TEMP TABLE commands(ord INTEGER,sort_key TEXT,body TEXT);
+CREATE TEMP TABLE touch AS SELECT CASE WHEN json_extract(body,'$.touch_collections')=1
+ AND (SELECT kind FROM op) IN ('create_collection','add_members','remove_members','rename_collection')
+ THEN CAST(strftime('%s','now') AS INTEGER) ELSE NULL END stamp FROM context;
 INSERT INTO commands SELECT 0,'',json_object('insert',json_object('type','Collection','uuid',uuid,'lastAccess',CAST(strftime('%s','now') AS INTEGER),
  'titles',json_array(json_object('display',name,'direction','LTR','language','en_US')),
  'isVisibleInHome',1,'isArchived',1,'mimeType','application/x-kindle-collection','collections',NULL,
@@ -54,7 +57,9 @@ INSERT INTO commands SELECT 1,'',json_object('update',json_object('type','Collec
  'titles',json_array(json_object('display',name,'direction','LTR','language','en_US')))) FROM op WHERE kind='rename_collection';
 INSERT INTO commands SELECT 1,'',json_object('delete',json_object('uuid',uuid)) FROM op WHERE kind='delete_collection';
 INSERT INTO commands SELECT 2,uuid,json_object('update',json_object('type','Entry:Item','uuid',uuid,'collectionCount',expected_count)) FROM expected_books WHERE uuid IN(SELECT uuid FROM changed WHERE delta<>0);
+INSERT INTO commands SELECT 3,'',json_object('update',json_object('type','Collection','uuid',uuid,'lastAccess',stamp)) FROM op,touch WHERE stamp IS NOT NULL;
 SELECT json_object('book_bindings',json((SELECT json_group_array(json_object('alias',alias,'uuid',uuid)) FROM aliases)), 'status',(SELECT status FROM problem),
+ 'touch_time',(SELECT stamp FROM touch),
  'before',json((SELECT before_json FROM states)),'after',json((SELECT after_json FROM states)),
  'expected_books',json((SELECT json_group_array(json_object('uuid',uuid,'location',location,'expected_count',expected_count)) FROM expected_books)),
  'payload',json_object('commands',json((SELECT json_group_array(json(body)) FROM(SELECT body FROM commands ORDER BY ord,sort_key))),'type','ChangeRequest','id',1));

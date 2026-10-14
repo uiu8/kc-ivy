@@ -582,6 +582,9 @@
       "type": "string",
       "pattern": "^[0-9a-f]{64}$"
     },
+    "touch_collections": {
+      "type": "boolean"
+    },
     "new_books": {
       "type": "array",
       "items": {

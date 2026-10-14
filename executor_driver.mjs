@@ -23,6 +23,7 @@ for(const command of body.commands){
  }else if(command.update){
   const v=command.update;
   if(v.type==='Collection'){
+   if(v.lastAccess !== undefined && !config.omit_touch) db.prepare('UPDATE Entries SET p_lastAccess=? WHERE p_uuid=?').run(v.lastAccess,v.uuid);
    if(v.titles) db.prepare('UPDATE Entries SET p_titles_0_nominal=? WHERE p_uuid=?').run(v.titles[0].display,v.uuid);
    if(v.members){
     db.prepare('DELETE FROM Collections WHERE i_collection_uuid=?').run(v.uuid);

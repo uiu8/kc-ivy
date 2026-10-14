@@ -581,6 +581,9 @@
     "request_digest": {
       "type": "string",
       "pattern": "^[0-9a-f]{64}$"
+    },
+    "touch_collections": {
+      "type": "boolean"
     }
   },
   "required": [

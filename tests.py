@@ -58,6 +58,13 @@ def receipt(req, statuses=None):
 
 
 def mount_fixture(base, s):
+    (base/'documents').mkdir(parents=True,exist_ok=True)
+    for book in s['books']:
+        location=book.get('location') or ''
+        if location.startswith('/mnt/us/documents/'):
+            path=base/location[len('/mnt/us/'):]
+            path.parent.mkdir(parents=True,exist_ok=True)
+            if not path.exists():path.write_bytes(b'fixture book')
     for name in ('state','snapshots','inbox','results'):
         (base/'kc-sync'/name).mkdir(parents=True,exist_ok=True)
     (base/'driveinfo.calibre').write_bytes(canonical(dict(device_store_uuid=s['device']['storage_uuid'])))

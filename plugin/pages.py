@@ -451,6 +451,11 @@ class Pages:
         add.clicked.connect(addrow)
         layout.addWidget(QLabel('规则不再使用时，把动作改为“不使用”。最少书数不足不会自动删除收藏夹。'))
         case=QCheckBox('匹配分类规则时忽略英文大小写');case.setChecked(p['settings']['ignore_case']);layout.addWidget(case)
+        order=QCheckBox('修改后将收藏夹移到 Kindle「最近使用」前列')
+        order.setObjectName('touch_collections');order.setChecked(p['settings'].get('touch_collections',True))
+        sections[0].insertWidget(sections[0].count()-1,order)
+        order_note=QLabel('仅影响本次修改的收藏夹；按名称排序时不生效。关闭后不主动更新最近访问时间。')
+        order_note.setWordWrap(True);sections[0].insertWidget(sections[0].count()-1,order_note)
         layout=sections[3]
         layout.addWidget(QLabel('保护 Kindle 已有收藏关系'))
         preserve=QCheckBox('保留未纳管的收藏夹及归属（始终启用）');preserve.setChecked(True);preserve.setEnabled(False);layout.addWidget(preserve)
@@ -485,7 +490,7 @@ class Pages:
         if not dialog.exec():return
         try:
             settings=copy.deepcopy(p['settings'])
-            settings.update(ignore_case=case.isChecked(),ignore_all=[v for v in patterns.toPlainText().splitlines() if v],keep_kindle_only=True)
+            settings.update(ignore_case=case.isChecked(),ignore_all=[v for v in patterns.toPlainText().splitlines() if v],keep_kindle_only=True,touch_collections=order.isChecked())
             if mode.currentData()=='manual':
                 if QMessageBox.question(self,'使用纯 kc-ivy 整理', '后续任务只采用手动草稿；原书架列和规则配置保留但暂停使用，不清空列值。\n切回列模式时需重新预览；已在 Kindle 确认的手动移除不会被盲目加回。\n保存此设置？')!=QMessageBox.StandardButton.Yes:return
                 def saved_manual(value):

@@ -76,7 +76,7 @@ class MTP(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         self.base=Path(self.tmp.name);self.mount=self.base/'device';self.mount.mkdir()
-        self.s=snapshot();mount_fixture(self.mount,self.s);(self.mount/'documents').mkdir()
+        self.s=snapshot();mount_fixture(self.mount,self.s);(self.mount/'documents').mkdir(exist_ok=True)
         (self.mount/'kc-sync/state/mtp.json').write_bytes(canonical(dict(schema='kc-mtp/v1',device=self.s['device'])))
         self.connect()
     def connect(self):
@@ -132,7 +132,8 @@ class MTP(unittest.TestCase):
     def test_old_runtime_and_v2_disconnect_retry(self):
         path,snap,req=self.new_book()
         entry=self.mount/'documents/KC执行收藏夹任务-MTP.sh';raw=entry.read_bytes()
-        entry.write_bytes(raw.replace(b'0.6.15',b'0.6.14'))
+        from plugin.install import VERSION
+        entry.write_bytes(raw.replace(VERSION.encode('ascii'),b'0.6.14'))
         with self.assertRaises(Invalid):self.store.send(req)
         entry.write_bytes(raw)
         self.driver.fail='.ready'

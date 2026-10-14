@@ -8,7 +8,7 @@ class Repair(unittest.TestCase):
  def test_identity_marker_transition_and_legacy_repair(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=Path(tmp);mount=root/'device';mount.mkdir();s=snapshot();store=mount_fixture(mount,s)
-   (mount/'documents').mkdir();(mount/'documents/new.azw3').write_bytes(b'book')
+   (mount/'documents').mkdir(exist_ok=True);(mount/'documents/new.azw3').write_bytes(b'book')
    (mount/'metadata.calibre').write_bytes(canonical([dict(uuid='calibre-new',lpath='documents/new.azw3',title='Book')]))
    drive=mount/'driveinfo.calibre'
    drive.write_bytes(canonical(dict(device_store_uuid='store-1',last_library_uuid='library')))
